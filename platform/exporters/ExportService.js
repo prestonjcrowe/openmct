@@ -65,6 +65,12 @@ define(['csv'], function (CSV) {
         this.saveAs(blob, filename);
     };
 
+    ExportService.prototype.exportJSON = function (config, options) {
+        var filename = "test-export.json";
+        var jsonText = JSON.stringify(config);
+        var blob = new Blob([jsonText], {type:"application/json"});
+        this.saveAs(blob, filename);
+    };
     /**
      * Additional parameters for file export.
      * @typedef ExportOptions
