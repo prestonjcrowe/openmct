@@ -66,9 +66,9 @@ define(['csv'], function (CSV) {
     };
 
     ExportService.prototype.exportJSON = function (config, options) {
-        var filename = "test-export.json";
+        var filename = (options && options.filename) || "test-export.json";
         var jsonText = JSON.stringify(config);
-        var blob = new Blob([jsonText], {type:"application/json"});
+        var blob = new Blob([jsonText], {type: "application/json"});
         this.saveAs(blob, filename);
     };
     /**
