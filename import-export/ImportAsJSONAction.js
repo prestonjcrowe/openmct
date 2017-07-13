@@ -1,7 +1,16 @@
+// need to validate new location with policy service
+
 define([], function () {
     'use strict';
 
-    var SAMPLE = '{"telemetry":{"values":[{"name":"Time","key":"utc","format":"utc","hints":{"domain":1,"priority":0},"source":"utc"},{"name":"Image","key":"url","format":"image","hints":{"image":1,"priority":1},"source":"url"}]},"name":"slayer","type":"example.imagery","modified":1498776755151,"location":"mine","persisted":1498776755151,"identifier":{"namespace":"","key":"80512ae7-1007-419a-93bb-0373067e9087"}}';
+    var sampleModel = {
+        "composition":["6fd118c8-d683-48da-b389-f63544b88608","6295c7a0-148d-40ed-8625-94b4373cdec2"],
+        "name":"foldy",
+        "type":"folder",
+        "modified":1499963825849,
+        "location":"mine",
+        "persisted":1499963825849
+    };
 
     function ImportAsJSONAction(exportService, openmct, context) {
         this.exportService = exportService;
@@ -10,30 +19,17 @@ define([], function () {
     }
 
     ImportAsJSONAction.prototype.perform = function() {
-        var context = this.context;
-        var domainObject;
-
-        var objectToImport = JSON.parse(SAMPLE);
-
-        this.openmct.objects.get(this.context.domainObject.getId())
-            .then(function (object) {
-                domainObject = object;  // context
-                console.log(domainObject);
-                objectToImport.location = domainObject.identifier.key;
-                domainObject.composition.push(objectToImport.identifier);
-
-                this.context.domainObject.getCapability("composition")
-                    .add(this.context.domainObject)
-                    .then(function (importedObject) {
-                        console.log(importedObject)
-                        this.context.domainObject.getCapability("persistence").persist();
-                    }.bind(this));
+        var parent = this.context.domainObject;
+        var objectToImport = sampleModel;
+        var clone;
+      
+        clone = parent.useCapability("instantiation", objectToImport);
+        parent.getCapability("composition")
+            .add(clone)
+            .then(function (importedObject) {
+                clone.getCapability("persistence").persist();
+                parent.getCapability("persistence").persist();
             }.bind(this));
-
-        
-        //domainObject.getModel().location = context.getId();
-
-        
     }; 
 
     ImportAsJSONAction.appliesTo = function (context) {

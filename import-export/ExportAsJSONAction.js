@@ -10,14 +10,14 @@ define([], function () {
     ExportAsJSONAction.prototype.perform = function() {
         var context = this.context;
         var domainObject = this.context.domainObject;
-        this.openmct.objects.get(domainObject.getId())
-            .then(function (object) {
-                this.exportService.exportJSON(object);
-                console.log('object: ' + object)
-            }.bind(this));
-            console.log('domain object: ' + JSON.stringify(domainObject));
+        this.exportService.exportJSON(domainObject.getModel(), 
+            {filename:  Date.now() + '.json'});
 
-        //this.exportService.exportJSON(domainObject);
+        domainObject.useCapability('composition').then(function (children) {
+            children.forEach(function (child) {
+                console.log('child: ' + JSON.stringify(child.getModel()));
+            })
+        })
     }; 
 
     ExportAsJSONAction.appliesTo = function (context) {
