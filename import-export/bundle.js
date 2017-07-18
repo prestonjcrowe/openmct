@@ -23,14 +23,18 @@
 
 define([
     'openmct',
+    'platform/core/src/identifiers/IdentifierProvider',
     './ExportAsJSONAction',
     './ImportAsJSONAction'
     ], 
 
     function (
         openmct, 
+        IndentifierProvider,
         ExportAsJSONAction, 
-        ImportAsJSONAction) {
+        ImportAsJSONAction
+
+    ) {
     
     openmct.legacyRegistry.register("import-export", {
         "name": "Import-export plugin",
@@ -56,7 +60,8 @@ define([
                     "cssClass": "icon-download",
                     "depends": [ 
                                 "exportService",
-                                "openmct"
+                                "openmct",
+                                "identifierService"
                             ]
                 }
             ]
