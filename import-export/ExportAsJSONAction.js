@@ -4,7 +4,7 @@ define([], function () {
     function ExportAsJSONAction(exportService, context) {
         this.exportService = exportService;
         this.context = context;
-        this.count = 0;
+        this.calls = 0;
     }
 
     ExportAsJSONAction.prototype.perform = function() {
@@ -16,33 +16,33 @@ define([], function () {
     };
 
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
-        var objJSON = {};
-        objJSON[rootObject.getId()] = rootObject.getModel();
+        var tree = {};
+        tree[rootObject.getId()] = rootObject.getModel();
 
-        this.write(objJSON, rootObject, function (result) {
+        this.write(tree, rootObject, function (result) {
             this.exportService.exportJSON(result, 
                 {filename:  Date.now() + '.json'});
         }.bind(this));
     };
 
-    ExportAsJSONAction.prototype.write = function (struct, domainObject, callback) {
-        this.count++;
+    ExportAsJSONAction.prototype.write = function (tree, domainObject, callback) {
+        this.calls++;
         if (domainObject.hasCapability('composition')) {
             domainObject.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child) { 
-                        struct[child.getId()] = child.getModel();
-                        this.write(struct, child, callback);            
+                        tree[child.getId()] = child.getModel();
+                        this.write(tree, child, callback);
                     }.bind(this));
-                    this.count--;
-                    if (this.count === 0) {
-                        callback(struct);
+                    this.calls--;
+                    if (this.calls === 0) {
+                        callback(tree);
                     }
                 }.bind(this))
         } else {
-            this.count--;
-            if (this.count === 0) {
-                callback(struct);
+            this.calls--;
+            if (this.calls === 0) {
+                callback(tree);
             }
         }
     };
