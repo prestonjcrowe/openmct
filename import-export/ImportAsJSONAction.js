@@ -1,8 +1,41 @@
 define([], function () {
 	'use strict';
 
-    var file = {"69efc2ee-a057-49a8-b7d3-71fadec00455":{"composition":["c195b041-5125-427e-81f6-da0e5a326151","ff1f653f-d7b7-415f-b043-e268c0234db9"],"name":"diect","type":"folder","modified":1500401096359,"location":"mine","persisted":1500401096359},"c195b041-5125-427e-81f6-da0e5a326151":{"composition":["6fc3799b-0b86-420b-a423-35562edeef2d"],"name":"str8 to the dome","type":"folder","modified":1500401072344,"location":"69efc2ee-a057-49a8-b7d3-71fadec00455","persisted":1500401072344},"ff1f653f-d7b7-415f-b043-e268c0234db9":{"composition":["a7f52a97-ad9d-47a7-8186-a31b9bde7d5a","857352cb-78c3-46ef-b541-7f05f677e280"],"name":"a","type":"folder","modified":1500396022440,"location":"mine","persisted":1500396022440},"6fc3799b-0b86-420b-a423-35562edeef2d":{"composition":["6fd118c8-d683-48da-b389-f63544b88608","6295c7a0-148d-40ed-8625-94b4373cdec2","a1b1aafc-1a93-41b5-a9d0-12912377a0ba"],"name":"2erweqrw23","type":"folder","modified":1500401083139,"location":"c195b041-5125-427e-81f6-da0e5a326151","persisted":1500401083139},"a7f52a97-ad9d-47a7-8186-a31b9bde7d5a":{"composition":["c3e4d73a-ff48-44cb-8de3-e7b71ac69004"],"name":"b","type":"folder","modified":1500355561576,"location":"ff1f653f-d7b7-415f-b043-e268c0234db9","persisted":1500355561576},"857352cb-78c3-46ef-b541-7f05f677e280":{"composition":["6ba9cbbf-6c96-4161-9ee8-bda96db8047c"],"name":"a","type":"folder","modified":1500396022439,"location":"ff1f653f-d7b7-415f-b043-e268c0234db9","persisted":1500396022439},"6fd118c8-d683-48da-b389-f63544b88608":{"telemetry":{"values":[{"name":"Time","key":"utc","format":"utc","hints":{"domain":1}},{"name":"Image","key":"url","format":"image","hints":{"image":1}}]},"name":"Space Stuff","type":"example.imagery","modified":1499979186024,"location":"mine","persisted":1499979186024},"6295c7a0-148d-40ed-8625-94b4373cdec2":{"name":"Docs","type":"example.page","notes":"\"I'm being productive!\"","url":"https://nasa.github.io/openmct/docs/tutorials/#introduction","modified":1499979200171,"location":"mine","persisted":1499979200171},"a1b1aafc-1a93-41b5-a9d0-12912377a0ba":{"composition":["be8d3b88-2a27-4696-90ee-2c0cd8bc66e2","5fdd43db-9efa-4bcc-8b2c-c74926e3684c"],"name":"somethingcrazy","type":"folder","modified":1500354372521,"location":"mine","persisted":1500354372521},"c3e4d73a-ff48-44cb-8de3-e7b71ac69004":{"composition":["b9374122-264f-40bb-bd54-fc0c4ba34b45"],"name":"c","type":"folder","modified":1500355561577,"location":"a7f52a97-ad9d-47a7-8186-a31b9bde7d5a","persisted":1500355561577},"6ba9cbbf-6c96-4161-9ee8-bda96db8047c":{"composition":["3d57e9dc-0475-4867-9043-9fc9e1ad77ca"],"name":"b","type":"folder","modified":1500396022439,"location":"857352cb-78c3-46ef-b541-7f05f677e280","persisted":1500396022439},"be8d3b88-2a27-4696-90ee-2c0cd8bc66e2":{"telemetry":{"values":[{"name":"Time","key":"utc","format":"utc","hints":{"domain":1}},{"name":"Image","key":"url","format":"image","hints":{"image":1}}]},"name":"nutfd","type":"example.imagery","modified":1500354372520,"location":"a1b1aafc-1a93-41b5-a9d0-12912377a0ba","persisted":1500354372520},"5fdd43db-9efa-4bcc-8b2c-c74926e3684c":{"composition":["1eec9995-5553-48ce-bfd5-65cbbf9af1e8"],"name":"secrets","type":"folder","modified":1500354372523,"location":"a1b1aafc-1a93-41b5-a9d0-12912377a0ba","persisted":1500354372523},"b9374122-264f-40bb-bd54-fc0c4ba34b45":{"composition":[],"name":"d","type":"folder","modified":1500355561577,"location":"c3e4d73a-ff48-44cb-8de3-e7b71ac69004","persisted":1500355561577},"3d57e9dc-0475-4867-9043-9fc9e1ad77ca":{"composition":["b79e5ebc-54e0-4517-af54-897561f4110b"],"name":"c","type":"folder","modified":1500396022440,"location":"6ba9cbbf-6c96-4161-9ee8-bda96db8047c","persisted":1500396022440},"1eec9995-5553-48ce-bfd5-65cbbf9af1e8":{"telemetry":{"period":10,"amplitude":1,"offset":0,"dataRateInHz":1,"values":[{"key":"utc","name":"Time","format":"utc","hints":{"domain":1}},{"key":"yesterday","name":"Yesterday","format":"utc","hints":{"domain":2}},{"key":"sin","name":"Sine","hints":{"range":1}},{"key":"cos","name":"Cosine","hints":{"range":2}}]},"name":";)","type":"generator","modified":1500354372523,"location":"5fdd43db-9efa-4bcc-8b2c-c74926e3684c","persisted":1500354372523},"b79e5ebc-54e0-4517-af54-897561f4110b":{"composition":[],"name":"d","type":"folder","modified":1500396022440,"location":"3d57e9dc-0475-4867-9043-9fc9e1ad77ca","persisted":1500396022440}};
-    
+	var file = {
+		"9a62586f-4c79-4e6f-a78c-036dcf23feb1": {
+			"composition": ["dd3cf02c-eca8-43a5-9c47-c0ee307d5a10"],
+			"name": "a",
+			"type": "folder",
+			"modified": 1500404299825,
+			"location": "mine",
+			"persisted": 1500404299825
+		},
+		"dd3cf02c-eca8-43a5-9c47-c0ee307d5a10": {
+			"composition": ["185493a8-d534-4b5c-bdbd-f23bbcb6999f"],
+			"name": "b",
+			"type": "folder",
+			"modified": 1500404306093,
+			"location": "9a62586f-4c79-4e6f-a78c-036dcf23feb1",
+			"persisted": 1500404306093
+		},
+		"185493a8-d534-4b5c-bdbd-f23bbcb6999f": {
+			"composition": ["1a6026e7-b054-4031-9e18-ac69a0128747"],
+			"name": "c",
+			"type": "folder",
+			"modified": 1500404312482,
+			"location": "dd3cf02c-eca8-43a5-9c47-c0ee307d5a10",
+			"persisted": 1500404312482
+		},
+		"1a6026e7-b054-4031-9e18-ac69a0128747": {
+			"composition": [],
+			"name": "d",
+			"type": "folder",
+			"modified": 1500404312476,
+			"location": "185493a8-d534-4b5c-bdbd-f23bbcb6999f",
+			"persisted": 1500404312476
+		}
+	};
+
     function ImportAsJSONAction(exportService, openmct, identifierService, context) {
         this.exportService = exportService;
         this.openmct = openmct;
