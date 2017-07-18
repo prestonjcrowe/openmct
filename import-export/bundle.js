@@ -48,8 +48,7 @@ define([
                     "category": "contextual",
                     "cssClass": "icon-download",
                     "depends": [ 
-                                "exportService",
-                                "openmct" 
+                                "exportService"
                             ]
                 },
                 {
