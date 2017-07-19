@@ -21,7 +21,7 @@ define([], function () {
 
         this.write(tree, rootObject, function (result) {
             this.exportService.exportJSON(result, 
-                {filename:  Date.now() + '.json'});
+                {filename:  rootObject.getModel().name + '.json'});
         }.bind(this));
     };
 

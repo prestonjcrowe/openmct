@@ -60,7 +60,8 @@ define([
                     "depends": [ 
                                 "exportService",
                                 "openmct",
-                                "identifierService"
+                                "identifierService",
+                                "dialogService"
                             ]
                 }
             ]
