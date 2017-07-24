@@ -53,15 +53,15 @@ define([
                 },
                 {
                     "key": "example.import.JSON",
-                    "name": "Import New",
+                    "name": "Import from JSON",
                     "implementation": ImportAsJSONAction,
                     "category": "contextual",
                     "cssClass": "icon-download",
                     "depends": [ 
                                 "exportService",
-                                "openmct",
                                 "identifierService",
-                                "dialogService"
+                                "dialogService",
+                                "openmct"
                             ]
                 }
             ]
