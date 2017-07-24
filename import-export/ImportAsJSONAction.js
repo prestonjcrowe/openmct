@@ -1,40 +1,6 @@
 define(['zepto'], function ($) {
 	'use strict';
     
-    var myFile = {
-        "9a62586f-4c79-4e6f-a78c-036dcf23feb1": {
-            "composition": ["dd3cf02c-eca8-43a5-9c47-c0ee307d5a10"],
-            "name": "a",
-            "type": "folder",
-            "modified": 1500404299825,
-            "location": "mine",
-            "persisted": 1500404299825
-        },
-        "dd3cf02c-eca8-43a5-9c47-c0ee307d5a10": {
-            "composition": ["185493a8-d534-4b5c-bdbd-f23bbcb6999f"],
-            "name": "b",
-            "type": "folder",
-            "modified": 1500404306093,
-            "location": "9a62586f-4c79-4e6f-a78c-036dcf23feb1",
-            "persisted": 1500404306093
-        },
-        "185493a8-d534-4b5c-bdbd-f23bbcb6999f": {
-            "composition": ["1a6026e7-b054-4031-9e18-ac69a0128747"],
-            "name": "c",
-            "type": "folder",
-            "modified": 1500404312482,
-            "location": "dd3cf02c-eca8-43a5-9c47-c0ee307d5a10",
-            "persisted": 1500404312482
-        },
-        "1a6026e7-b054-4031-9e18-ac69a0128747": {
-            "composition": [],
-            "name": "d",
-            "type": "folder",
-            "modified": 1500404312476,
-            "location": "185493a8-d534-4b5c-bdbd-f23bbcb6999f",
-            "persisted": 1500404312476
-        }
-    };
     var IMPORT_FORM = {
         name: "Import as JSON",
         sections: [{
@@ -43,9 +9,9 @@ define(['zepto'], function ($) {
                 name: 'Select File',
                 key: 'select-file',
                 control: 'button',
-                text: 'Select File',
+                required: true,
+                text: 'Select file',
                 click: function () {
-                    //var input = $(document.createElement('input'));
                     var input = $(document.getElementById('file-input'));
                     var setText = function(text) {
                         this.text = text;
@@ -59,12 +25,14 @@ define(['zepto'], function ($) {
         }]
     };
 
-    function ImportAsJSONAction(exportService, openmct, identifierService, dialogService, context) {
+    function ImportAsJSONAction(exportService, identifierService, dialogService, openmct, context) {
+
         this.exportService = exportService;
         this.openmct = openmct;
         this.identifierService = identifierService;
         this.dialogService = dialogService;
         this.context = context;
+        this.instantiate = openmct.$injector.get('instantiate');
 
         if (!document.getElementById('file-input')) {
             this.fileInput = $(document.createElement('input'));
@@ -78,11 +46,12 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.perform = function() {
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result){
-                var input = document.getElementById('file-input').files[0];
-                this.readFile(input)
+                var input = document.getElementById('file-input');
+                this.readFile(input.files[0])
                     .then(function (result) {
-                        document.getElementById('file-input').remove();
-                        // need this?
+                        input.value = '';
+                        input.remove();
+                        this.resetButtonText(IMPORT_FORM);
                         this.beginImport(result);
                     }.bind(this))
             }.bind(this));
@@ -127,13 +96,11 @@ define(['zepto'], function ($) {
     // Traverses object tree, instantiates all domain object w/ new IDs and 
     //adds to parent's composition
     ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree) {
-    	var instantiate = this.openmct.$injector.get('instantiate');
-        // BAD DONT GET ON EVERY CALL
 
     	if (parent.hasCapability("composition")) {
     		var parentModel = parent.getModel();
     		parentModel.composition.forEach(function (childId, index) {
-    			var newObject = instantiate(tree[childId], childId);
+    			var newObject = this.instantiate(tree[childId], childId);
     			parent.getCapability("composition").add(newObject);
     			// if meant to be a link, dont set primary location (?)
     			newObject.getCapability("location").setPrimaryLocation(parent.getId());
@@ -157,7 +124,10 @@ define(['zepto'], function ($) {
         tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
         return JSON.parse(tree);
     };
-    
+
+    ImportAsJSONAction.prototype.resetButtonText = function (dialogModel) {
+        dialogModel['sections'][0]['rows'][0].text = "Select file";
+    };    
     ImportAsJSONAction.appliesTo = function (context) {
         return context.domainObject !== undefined && 
             context.domainObject.hasCapability("composition");
