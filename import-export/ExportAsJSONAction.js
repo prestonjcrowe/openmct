@@ -12,7 +12,8 @@ define([], function () {
     }; 
 
     ExportAsJSONAction.prototype.appliesTo = function (context) {
-        return context.domainObject !== undefined;
+        return context.domainObject !== undefined &&
+            context.domainObject.hasCapability("creation");
     };
 
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
