@@ -22,10 +22,10 @@
 /*global define*/
 
 define([
-    'openmct',
-    'platform/core/src/identifiers/IdentifierProvider',
-    './ExportAsJSONAction',
-    './ImportAsJSONAction'
+    "openmct",
+    "platform/core/src/identifiers/IdentifierProvider",
+    "./ExportAsJSONAction",
+    "./ImportAsJSONAction"
     ], 
 
     function (
@@ -33,7 +33,6 @@ define([
         IndentifierProvider,
         ExportAsJSONAction, 
         ImportAsJSONAction
-
     ) {
     
     openmct.legacyRegistry.register("import-export", {
