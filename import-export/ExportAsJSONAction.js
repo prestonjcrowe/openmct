@@ -37,16 +37,20 @@ define([], function () {
                     }.bind(this));
                     this.calls--;
                     if (this.calls === 0) {
-                        callback(tree);
+                        callback(this.wrap(tree));
                     }
                 }.bind(this))
         } else {
             this.calls--;
             if (this.calls === 0) {
-                callback(tree);
+                callback(this.wrap(tree));
             }
         }
     };
+
+	ExportAsJSONAction.prototype.wrap = function (tree) {
+		return {'openmct': tree};
+	};
 
     return ExportAsJSONAction;
 });

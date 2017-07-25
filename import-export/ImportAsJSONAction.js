@@ -10,7 +10,7 @@ define(['zepto'], function ($) {
                 key: 'select-file',
                 control: 'import-json',
                 required: true,
-                text: 'Select file'
+                text: 'Select File'
             }]
         }]
     };
@@ -26,6 +26,8 @@ define(['zepto'], function ($) {
     };
 
     ImportAsJSONAction.prototype.perform = function() {
+        // catch reject here, can reset button text
+        // on form cancel
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result){
                 console.log("dialog promise: " + JSON.stringify(result))
@@ -35,7 +37,7 @@ define(['zepto'], function ($) {
                         input.value = '';
                         input.remove();
                         this.resetButtonText(IMPORT_FORM);
-                        this.beginImport(result);
+                        this.beginImport(result['openmct']);
                     }.bind(this))
             }.bind(this));
     };

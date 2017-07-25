@@ -39,30 +39,38 @@ define(
         }
 
         // fired on 'select file' button click
-        ImportJSONController.prototype.selectFile= function() {
+        ImportJSONController.prototype.selectFile = function () {
             var fileInput;
             var fileBody;
 
             // create input element if not already present
             if (!document.getElementById('file-input')) {
                 fileInput = this.newInput();
-            } 
+            }
 
             var read = function (file) {
                 return this.readFile(file);
             }.bind(this);
 
-            var setText = function(text) {
+            var setText = function (text) {
                 this.structure.text = text;
+            }.bind(this);
+
+            var validate = function (jsonString) {
+                return this.validateJSON(jsonString);
+            }.bind(this);
+
+            var resetButton = function () {
+                this.resetButtonText();
             }.bind(this);
 
             // make sure to check IDs, file size probs
             fileInput = $(document.getElementById('file-input'));
             fileInput.value = '';
-            
-            fileInput.change(function() {
-                console.log("onchange");  
-                fileBody = read(this.files[0])                  
+
+            fileInput.change(function () {
+                console.log("onchange");
+                fileBody = read(this.files[0])
                     .then(function (result) {
                         try {
                             JSON.parse(result);
@@ -70,12 +78,19 @@ define(
                             this.value = '';
                             this.remove();
                             alert("Not a valid JSON file\n:c");
+                            setText('Select File');
                             return false;
                         }
-                        // validateMCTJSON here (check ids, file size etc)
-                        setText(this.files[0]['name']); 
-                        return true;
-                        
+                        if (validate(result)) {
+                            setText(this.files[0]['name']);
+                            return true;
+                        }
+                        this.value = '';
+                        this.remove();
+                        alert('JSON configuration not recognized\n:c');
+                        setText('Select File');
+                        return false;
+
                     }.bind(this));
 
             });
@@ -109,9 +124,19 @@ define(
             return input;
         };
 
-        //ImportJSONController.prototype.validateJSON = function(jsonString) {
-  
-        //};
+        ImportJSONController.prototype.resetButtonText = function () {
+            this.structure['sections'][0]['rows'][0].text = 'Select File';
+        };
+
+        ImportJSONController.prototype.validateJSON = function (jsonString) {
+            var json = JSON.parse(jsonString);
+            if (json['openmct'] && Object.keys(json).length === 1) {
+                console.log("valid");
+                return true;
+            }
+            console.log("invalid");
+            return false;
+        };
 
         return ImportJSONController;
     }
