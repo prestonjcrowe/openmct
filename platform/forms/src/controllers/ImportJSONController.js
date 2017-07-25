@@ -42,37 +42,77 @@ define(
 
         ImportJSONController.prototype.selectFile= function() {
             var fileInput;
+            var fileBody;
+
             if (!document.getElementById('file-input')) {
                 fileInput = $(document.createElement('input'));
                 fileInput.attr("type", "file");
                 fileInput.attr("id", "file-input");
                 $("html").append(fileInput);
             } 
-            
+
+            var read = function (file) {
+                return this.readFile(file);
+            }.bind(this);
+
+            // could prove unnecsary if i can put input in html template
+            // make sure to check IDs, file size probs
             fileInput = $(document.getElementById('file-input'));
             var setText = function(text) {
                 this.structure.text = text;
             }.bind(this);
-            fileInput.change(function() { 
-                setText(this.files[0]['name']);  
-                // validate HERE 
-                // make sure to check IDs, file size probs
-                // also valid JSON -> (btw)
-
-                // function IsJsonString(str) {
-                //     try {
-                //         JSON.parse(str);
-                //     } catch (e) {
-                //         return false;
-                //     }
-                //     return true;
-                // }   
+            fileInput.change(function() {
+                console.log("onchange");  
+                fileBody = read(this.files[0])                  
+                    .then(function (result) {
+                        try {
+                            JSON.parse(result);
+                        } catch (e) {
+                            this.value = '';
+                            this.remove();
+                            alert("Not a valid JSON file\n" + this.files.length);
+                            return false;
+                        }
+                        // validateMCTJSON here (check ids etc)
+                        setText(this.files[0]['name']); 
+                        return true;
+                        
+                    }.bind(this));
 
             });
             fileInput.trigger('click');
+            fileInput.off('click');
         };
 
-        ImportJSONController.prototype.validateFile
+        ImportJSONController.prototype.readFile = function (file) {
+            var contents = '';
+            var fileReader = new FileReader();
+
+            return new Promise(function (resolve, reject) {
+                fileReader.onload = function (event) {
+                    resolve(event.target.result);
+                };
+
+                fileReader.onerror = function () {
+                    return reject(contents);
+                };
+                fileReader.readAsText(file);
+            })
+
+        };
+
+        ImportJSONController.prototype.isJSON  = function (str) {
+            try {
+                JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+            return true;
+        };
+
+        //ImportJSONController.prototype.validateJSON = function(jsonString) {
+  
+        //};
 
         return ImportJSONController;
     }

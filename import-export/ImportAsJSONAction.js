@@ -10,17 +10,7 @@ define(['zepto'], function ($) {
                 key: 'select-file',
                 control: 'import-json',
                 required: true,
-                text: 'Select file',
-                click: function () {
-                    var input = $(document.getElementById('file-input'));
-                    var setText = function(text) {
-                        this.text = text;
-                    }.bind(this);
-                    input.change(function() { 
-                        setText(this.files[0]['name']);                        
-                    });
-                    input.trigger('click');
-                }
+                text: 'Select file'
             }]
         }]
     };
