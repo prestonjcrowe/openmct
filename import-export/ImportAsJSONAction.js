@@ -23,19 +23,12 @@ define(['zepto'], function ($) {
         this.dialogService = dialogService;
         this.context = context;
         this.instantiate = openmct.$injector.get('instantiate');
-
-        if (!document.getElementById('file-input')) {
-            this.fileInput = $(document.createElement('input'));
-            this.fileInput.attr("type", "file");
-            this.fileInput.attr("id", "file-input");
-            $("html").append(this.fileInput);
-        }
-        
     };
 
     ImportAsJSONAction.prototype.perform = function() {
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result){
+                console.log("dialog promise: " + JSON.stringify(result))
                 var input = document.getElementById('file-input');
                 this.readFile(input.files[0])
                     .then(function (result) {

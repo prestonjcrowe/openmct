@@ -24,9 +24,9 @@ define(
     function () {
 
         /**
-         * Controller for the `dialog-button` control type. Provides
+         * Controller for the `importJSONbutton` control type. Provides
          * structure for a button (embedded via the template) which
-         * will show a dialog for editing a single property when clicked.
+         * EDIT THIS AND ALSO PLATFORM/EXPORTERS/EXPORTSERVICE/////////////////
          * @memberof platform/forms
          * @constructor
          * @param $scope the control's Angular scope
@@ -36,31 +36,30 @@ define(
         function ImportJSONController($scope, dialogService) {
             this.$scope = $scope;
             this.structure = $scope.structure;
-            // pass by ref here?
-            console.log('json controller init');
         }
 
+        // fired on 'select file' button click
         ImportJSONController.prototype.selectFile= function() {
             var fileInput;
             var fileBody;
 
+            // create input element if not already present
             if (!document.getElementById('file-input')) {
-                fileInput = $(document.createElement('input'));
-                fileInput.attr("type", "file");
-                fileInput.attr("id", "file-input");
-                $("html").append(fileInput);
+                fileInput = this.newInput();
             } 
 
             var read = function (file) {
                 return this.readFile(file);
             }.bind(this);
 
-            // could prove unnecsary if i can put input in html template
-            // make sure to check IDs, file size probs
-            fileInput = $(document.getElementById('file-input'));
             var setText = function(text) {
                 this.structure.text = text;
             }.bind(this);
+
+            // make sure to check IDs, file size probs
+            fileInput = $(document.getElementById('file-input'));
+            fileInput.value = '';
+            
             fileInput.change(function() {
                 console.log("onchange");  
                 fileBody = read(this.files[0])                  
@@ -70,10 +69,10 @@ define(
                         } catch (e) {
                             this.value = '';
                             this.remove();
-                            alert("Not a valid JSON file\n" + this.files.length);
+                            alert("Not a valid JSON file\n:c");
                             return false;
                         }
-                        // validateMCTJSON here (check ids etc)
+                        // validateMCTJSON here (check ids, file size etc)
                         setText(this.files[0]['name']); 
                         return true;
                         
@@ -101,13 +100,13 @@ define(
 
         };
 
-        ImportJSONController.prototype.isJSON  = function (str) {
-            try {
-                JSON.parse(str);
-            } catch (e) {
-                return false;
-            }
-            return true;
+        ImportJSONController.prototype.newInput  = function () {
+            var input = $(document.createElement('input'));
+            input.attr("type", "file");
+            input.attr("id", "file-input");
+            input.attr("display", "none");
+            $("html").append(input);
+            return input;
         };
 
         //ImportJSONController.prototype.validateJSON = function(jsonString) {
