@@ -29,6 +29,7 @@ define([
     "./src/controllers/CompositeController",
     "./src/controllers/ColorController",
     "./src/controllers/DialogButtonController",
+    "./src/controllers/ImportJSONController",
     "text!./res/templates/controls/autocomplete.html",
     "text!./res/templates/controls/checkbox.html",
     "text!./res/templates/controls/datetime.html",
@@ -42,6 +43,7 @@ define([
     "text!./res/templates/controls/menu-button.html",
     "text!./res/templates/controls/dialog.html",
     "text!./res/templates/controls/radio.html",
+    "text!./res/templates/controls/importJSONbutton.html",
     'legacyRegistry'
 ], function (
     MCTForm,
@@ -52,6 +54,7 @@ define([
     CompositeController,
     ColorController,
     DialogButtonController,
+    ImportJSONController,
     autocompleteTemplate,
     checkboxTemplate,
     datetimeTemplate,
@@ -65,6 +68,7 @@ define([
     menuButtonTemplate,
     dialogTemplate,
     radioTemplate,
+    importJSONtemplate,
     legacyRegistry
 ) {
 
@@ -142,6 +146,10 @@ define([
                 {
                     "key": "dialog-button",
                     "template": dialogTemplate
+                },
+                {
+                    "key": "import-json",
+                    "template": importJSONtemplate
                 }
             ],
             "controllers": [
@@ -171,6 +179,14 @@ define([
                 {
                     "key": "DialogButtonController",
                     "implementation": DialogButtonController,
+                    "depends": [
+                        "$scope",
+                        "dialogService"
+                    ]
+                },
+                {
+                    "key": "ImportJSONController",
+                    "implementation": ImportJSONController,
                     "depends": [
                         "$scope",
                         "dialogService"

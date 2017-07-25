@@ -8,7 +8,7 @@ define(['zepto'], function ($) {
             rows: [{
                 name: 'Select File',
                 key: 'select-file',
-                control: 'button',
+                control: 'import-json',
                 required: true,
                 text: 'Select file',
                 click: function () {
