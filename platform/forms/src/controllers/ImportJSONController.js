@@ -69,7 +69,7 @@ define(
             fileInput.value = '';
 
             fileInput.change(function () {
-                console.log("onchange");
+                fileInput.off('change');
                 fileBody = read(this.files[0])
                     .then(function (result) {
                         try {
@@ -95,7 +95,6 @@ define(
 
             });
             fileInput.trigger('click');
-            fileInput.off('click');
         };
 
         ImportJSONController.prototype.readFile = function (file) {
