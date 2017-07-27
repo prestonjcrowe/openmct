@@ -11,15 +11,8 @@ define(['zepto'], function ($) {
                 control: 'import-json',
                 required: true,
                 text: 'Select File'
-            },
-            {
-                name: 'temp',
-                key: 'also-temp',
-                control: 'textfield',
-                required: true,
-                pattern: '..t'
             }]
-        }]
+    	}]
     };
 
     function ImportAsJSONAction(exportService, identifierService, dialogService, openmct, context) {

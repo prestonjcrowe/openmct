@@ -35,6 +35,7 @@ define(
          */
         function ImportJSONController($scope, dialogService) {
             this.$scope = $scope;
+            this.$scope.validInput = false;
             this.structure = $scope.structure;
 
         }
@@ -62,31 +63,43 @@ define(
                 return this.validateJSON(jsonString);
             }.bind(this);
 
+            var setValid = function (state) {
+                this.$scope.validInput = state;
+            }.bind(this)
+
             // make sure to check IDs, file size probs
             fileInput = $(document.getElementById('file-input'));
             fileInput.value = '';
 
             fileInput.change(function () {
                 fileInput.off('change');
-                fileBody = read(this.files[0])
-                    .then(function (result) {
-                        try {
-                            JSON.parse(result);
-                        } catch (e) {
+                if (this.files[0]) {
+                    fileBody = read(this.files[0])
+                        .then(function (result) {
+                            try {
+                                JSON.parse(result);
+                            } catch (e) {
+                                this.remove();
+                                alert("Not a valid JSON file\n:c");
+                                setValid(false);
+                                setText('Select File');
+                                return false;
+                            }
+                            if (validate(result)) {
+                                setValid(true);
+                                setText(this.files[0]['name']);
+                                return true;
+                            }
                             this.remove();
-                            alert("Not a valid JSON file\n:c");
+                            alert('JSON configuration not recognized\n:c');
                             setText('Select File');
+                            setValid(false);
                             return false;
-                        }
-                        if (validate(result)) {
-                            setText(this.files[0]['name']);
-                            return true;
-                        }
-                        this.remove();
-                        alert('JSON configuration not recognized\n:c');
-                        setText('Select File');
-                        return false;
-                    }.bind(this));
+                        }.bind(this));
+                } else {
+                    setValid(false);
+                    setText('Select File');
+                }
             });
             fileInput.trigger('click');
         };
