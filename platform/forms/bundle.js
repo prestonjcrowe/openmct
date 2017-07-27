@@ -30,6 +30,7 @@ define([
     "./src/controllers/ColorController",
     "./src/controllers/DialogButtonController",
     "./src/controllers/ImportJSONController",
+	"./src/ImportJSONDirective",
     "text!./res/templates/controls/autocomplete.html",
     "text!./res/templates/controls/checkbox.html",
     "text!./res/templates/controls/datetime.html",
@@ -55,6 +56,7 @@ define([
     ColorController,
     DialogButtonController,
     ImportJSONController,
+	ImportJSONDirective,
     autocompleteTemplate,
     checkboxTemplate,
     datetimeTemplate,
@@ -92,6 +94,10 @@ define([
                         "templateLinker",
                         "controls[]"
                     ]
+                }, 
+                {
+                    "key": "importDirective",
+                    "implementation": ImportJSONDirective
                 }
             ],
             "controls": [

@@ -22,7 +22,8 @@
 <a class="s-button {{structure.cssClass}}"
    ng-class="{ labeled: structure.text }"
    ng-controller="ImportJSONController as importController"
-   ng-click="importController.selectFile()">
+   ng-click="importController.selectFile()"
+   import-directive>
     <span class="title-label" ng-if="structure.text">
         {{structure.text}}
     </span>
