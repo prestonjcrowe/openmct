@@ -36,6 +36,7 @@ define(
         function ImportJSONController($scope, dialogService) {
             this.$scope = $scope;
             this.structure = $scope.structure;
+
         }
 
         // fired on 'select file' button click
@@ -48,6 +49,7 @@ define(
                 fileInput = this.newInput();
             }
 
+            // could user _.bindAll() here?
             var read = function (file) {
                 return this.readFile(file);
             }.bind(this);
@@ -58,10 +60,6 @@ define(
 
             var validate = function (jsonString) {
                 return this.validateJSON(jsonString);
-            }.bind(this);
-
-            var resetButton = function () {
-                this.resetButtonText();
             }.bind(this);
 
             // make sure to check IDs, file size probs
@@ -75,7 +73,6 @@ define(
                         try {
                             JSON.parse(result);
                         } catch (e) {
-                            this.value = '';
                             this.remove();
                             alert("Not a valid JSON file\n:c");
                             setText('Select File');
@@ -85,20 +82,16 @@ define(
                             setText(this.files[0]['name']);
                             return true;
                         }
-                        this.value = '';
                         this.remove();
                         alert('JSON configuration not recognized\n:c');
                         setText('Select File');
                         return false;
-
                     }.bind(this));
-
             });
             fileInput.trigger('click');
         };
 
         ImportJSONController.prototype.readFile = function (file) {
-            var contents = '';
             var fileReader = new FileReader();
 
             return new Promise(function (resolve, reject) {
@@ -107,7 +100,7 @@ define(
                 };
 
                 fileReader.onerror = function () {
-                    return reject(contents);
+                    return reject(event.target.result);
                 };
                 fileReader.readAsText(file);
             })
@@ -118,13 +111,15 @@ define(
             var input = $(document.createElement('input'));
             input.attr("type", "file");
             input.attr("id", "file-input");
-            input.attr("display", "none");
-            $("html").append(input);
+            input.attr("name", "inputControl");
+            input.css("display", "none");
+			//$("html").append(input);
+            //input.$valid = false;
+            $('body').append(input);
+            //console.log(this.$scope.mctForm.$valid);
+            //console.log(this.$scope.$parent.$parent.mctForm)
+            //console.log(this.$scope.$parent.mctForm);
             return input;
-        };
-
-        ImportJSONController.prototype.resetButtonText = function () {
-            this.structure['sections'][0]['rows'][0].text = 'Select File';
         };
 
         ImportJSONController.prototype.validateJSON = function (jsonString) {

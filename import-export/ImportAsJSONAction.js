@@ -11,6 +11,13 @@ define(['zepto'], function ($) {
                 control: 'import-json',
                 required: true,
                 text: 'Select File'
+            },
+            {
+                name: 'temp',
+                key: 'also-temp',
+                control: 'textfield',
+                required: true,
+                pattern: '..t'
             }]
         }]
     };
@@ -28,17 +35,27 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.perform = function() {
         // catch reject here, can reset button text
         // on form cancel
+        var input;
+        var dialog;
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result){
-                console.log("dialog promise: " + JSON.stringify(result))
-                var input = document.getElementById('file-input');
+                input = document.getElementById('file-input');
+                //dialog = document.getElementByClass('disabled');
+
                 this.readFile(input.files[0])
                     .then(function (result) {
+                        this.resetButton(IMPORT_FORM);          // can easly factor these lines out
                         input.value = '';
                         input.remove();
-                        this.resetButtonText(IMPORT_FORM);
                         this.beginImport(result['openmct']);
                     }.bind(this))
+            }.bind(this), function (result) {
+                input = document.getElementById('file-input');
+                if (input) {
+                    input.value = '';
+                    input.remove();
+                }
+                this.resetButton(IMPORT_FORM);
             }.bind(this));
     };
 
@@ -57,7 +74,6 @@ define(['zepto'], function ($) {
             };
             fileReader.readAsText(file);
         })
-
     }
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
@@ -110,9 +126,10 @@ define(['zepto'], function ($) {
         return JSON.parse(tree);
     };
 
-    ImportAsJSONAction.prototype.resetButtonText = function (dialogModel) {
-        dialogModel['sections'][0]['rows'][0].text = "Select file";
+    ImportAsJSONAction.prototype.resetButton = function (dialogModel) {
+        dialogModel['sections'][0]['rows'][0].text = "Select File";
     };    
+
     ImportAsJSONAction.appliesTo = function (context) {
         return context.domainObject !== undefined && 
             context.domainObject.hasCapability("composition");
