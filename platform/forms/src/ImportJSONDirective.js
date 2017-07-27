@@ -45,21 +45,15 @@ define(
         function ImportJSONDirective($parse, property, attribute) {
             console.log('loaded directive');
             function link(scope, element, attrs, control) {
-				//scope.form = form;
-                console.log('LINKED');
-                control.$setValidity("select-file", false);
-                function validateJSON(value) {
-                   
-                }
+                control.$setValidity("import", false);
+                scope.$watch('validInput', function(newValue, oldValue) {
+                    control.$setValidity("import", newValue);
+                });
             }
 
             return {
-                // Restrict to attributes
                 restrict: "A",
-				//scope: {},
-                //transclude:true,
 				require: "^form",
-                // Use this link function
                 link: link
             };
         }
