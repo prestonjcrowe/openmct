@@ -24,36 +24,17 @@ define(
     [],
     function () {
 
-        /**
-         * Implements `mct-scroll-x` and `mct-scroll-y` directives. Listens
-         * for scroll events and publishes their results into scope; watches
-         * scope and updates scroll state to match. This varies for x- and y-
-         * directives only by the attribute name chosen to find the expression,
-         * and the property (scrollLeft or scrollTop) managed within the
-         * element.
-         *
-         * This is exposed as two directives in `bundle.json`; the difference
-         * is handled purely by parameterization.
-         *
-         * @memberof platform/commonUI/general
-         * @constructor
-         * @param $parse Angular's $parse
-         * @param {string} property property to manage within the HTML element
-         * @param {string} attribute attribute to look at for the assignable
-         *        Angular expression
-         */
         function ImportJSONDirective($parse, property, attribute) {
-            console.log('loaded directive');
             function link(scope, element, attrs, control) {
                 control.$setValidity("import", false);
-                scope.$watch('validInput', function(newValue, oldValue) {
+                scope.$watch('validInput', function (newValue, oldValue) {
                     control.$setValidity("import", newValue);
                 });
             }
 
             return {
                 restrict: "A",
-				require: "^form",
+                require: "^form",
                 link: link
             };
         }
