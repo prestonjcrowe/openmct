@@ -26,18 +26,15 @@ define(['zepto'], function ($) {
     };
 
     ImportAsJSONAction.prototype.perform = function() {
-        // catch reject here, can reset button text
-        // on form cancel
         var input;
         var dialog;
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result){
                 input = document.getElementById('file-input');
-                //dialog = document.getElementByClass('disabled');
 
                 this.readFile(input.files[0])
                     .then(function (result) {
-                        this.resetButton(IMPORT_FORM);          // can easly factor these lines out
+                        this.resetButton(IMPORT_FORM);          // can factor these lines out
                         input.value = '';
                         input.remove();
                         this.beginImport(result['openmct']);

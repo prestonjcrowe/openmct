@@ -21,8 +21,8 @@
  *****************************************************************************/
 
 define(
-    [],
-    function () {
+    ['zepto'],
+    function ($) {
 
         /**
          * Controller for the `importJSONbutton` control type. Provides
@@ -66,9 +66,9 @@ define(
 
             var setValid = function (state) {
                 this.$scope.validInput = state;
-            }.bind(this)
+            }.bind(this);
 
-            // make sure to check IDs, file size probs
+            // make sure to check IDs, file size
             fileInput = $(document.getElementById('file-input'));
             fileInput.value = '';
 
@@ -88,7 +88,7 @@ define(
                             }
                             if (validate(result)) {
                                 setValid(true);
-                                setText(this.files[0]['name']);
+                                setText(this.files[0].name);
                                 return true;
                             }
                             this.remove();
@@ -117,7 +117,7 @@ define(
                     return reject(event.target.result);
                 };
                 fileReader.readAsText(file);
-            })
+            });
 
         };
 
@@ -128,7 +128,7 @@ define(
             } catch (e) {
                 return 'Not a valid JSON file\n:c';
             }
-            if (json['openmct'] && Object.keys(json).length === 1) {
+            if (json.openmct && Object.keys(json).length === 1) {
                 return 'Valid JSON';
             } else {
                 return 'JSON configuration not recognized\n:c';
@@ -146,11 +146,9 @@ define(
 
         ImportJSONController.prototype.validateJSON = function (jsonString) {
             var json = JSON.parse(jsonString);
-            if (json['openmct'] && Object.keys(json).length === 1) {
-                console.log("valid");
+            if (json.openmct && Object.keys(json).length === 1) {
                 return true;
             }
-            console.log("invalid");
             return false;
         };
 
