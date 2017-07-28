@@ -27,21 +27,19 @@ define(
         /**
          * Controller for the `importJSONbutton` control type. Provides
          * structure for a button (embedded via the template) which
-         * EDIT THIS AND ALSO PLATFORM/EXPORTERS/EXPORTSERVICE/////////////////
+         * opens a filepicker and validates that the chosen file is legal
+         * JSON.
          * @memberof platform/forms
          * @constructor
          * @param $scope the control's Angular scope
-         * @param {DialogService} dialogService service to use to prompt
-         *        for user input
          */
-        function ImportJSONController($scope, dialogService) {
+        function ImportJSONController($scope) {
             this.$scope = $scope;
             this.$scope.validInput = false;
             this.structure = $scope.structure;
-
         }
 
-        // fired on 'select file' button click
+        // fired on 'Select File' button click
         ImportJSONController.prototype.selectFile = function () {
             var fileInput;
             var fileBody;
@@ -77,31 +75,22 @@ define(
                 if (this.files[0]) {
                     fileBody = read(this.files[0])
                         .then(function (result) {
-                            try {
-                                JSON.parse(result);
-                            } catch (e) {
-                                this.remove();
-                                alert("Not a valid JSON file\n:c");
-                                setValid(false);
-                                setText('Select File');
-                                return false;
-                            }
-                            if (validate(result)) {
+                            if (validate(result) === 'Valid JSON') {
                                 setValid(true);
                                 setText(this.files[0].name);
-                                return true;
+                            } else {
+                                //alert(validate(result));
+                                this.remove();
+                                setValid(false);
+                                setText('Select File');
                             }
-                            this.remove();
-                            alert('JSON configuration not recognized\n:c');
-                            setText('Select File');
-                            setValid(false);
-                            return false;
                         }.bind(this));
                 } else {
                     setValid(false);
                     setText('Select File');
                 }
             });
+
             fileInput.trigger('click');
         };
 
@@ -121,7 +110,7 @@ define(
 
         };
 
-        ImportJSONController.prototype.validateJSONTwo = function (jsonString) {
+        ImportJSONController.prototype.validateJSON = function (jsonString) {
             var json;
             try {
                 json = JSON.parse(jsonString);
@@ -142,14 +131,6 @@ define(
             input.css("display", "none");
             $('body').append(input);
             return input;
-        };
-
-        ImportJSONController.prototype.validateJSON = function (jsonString) {
-            var json = JSON.parse(jsonString);
-            if (json.openmct && Object.keys(json).length === 1) {
-                return true;
-            }
-            return false;
         };
 
         return ImportJSONController;
