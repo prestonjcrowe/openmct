@@ -194,8 +194,7 @@ define([
                     "key": "ImportJSONController",
                     "implementation": ImportJSONController,
                     "depends": [
-                        "$scope",
-                        "dialogService"
+                        "$scope"
                     ]
                 }
             ]
