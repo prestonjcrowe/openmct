@@ -28,7 +28,7 @@ define(
          * Controller for the `importJSONbutton` control type. Provides
          * structure for a button (embedded via the template) which
          * opens a filepicker and validates that the chosen file is legal
-         * JSON.
+         * JSON and was exported by Open MCT.
          * @memberof platform/forms
          * @constructor
          * @param $scope the control's Angular scope
