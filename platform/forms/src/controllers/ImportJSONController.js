@@ -19,6 +19,7 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
+
 define(
     [],
     function () {
@@ -120,18 +121,26 @@ define(
 
         };
 
+        ImportJSONController.prototype.validateJSONTwo = function (jsonString) {
+            var json;
+            try {
+                json = JSON.parse(jsonString);
+            } catch (e) {
+                return 'Not a valid JSON file\n:c';
+            }
+            if (json['openmct'] && Object.keys(json).length === 1) {
+                return 'Valid JSON';
+            } else {
+                return 'JSON configuration not recognized\n:c';
+            }
+        };
+
         ImportJSONController.prototype.newInput  = function () {
             var input = $(document.createElement('input'));
             input.attr("type", "file");
             input.attr("id", "file-input");
-            input.attr("name", "inputControl");
             input.css("display", "none");
-			//$("html").append(input);
-            //input.$valid = false;
             $('body').append(input);
-            //console.log(this.$scope.mctForm.$valid);
-            //console.log(this.$scope.$parent.$parent.mctForm)
-            //console.log(this.$scope.$parent.mctForm);
             return input;
         };
 

@@ -94,7 +94,7 @@ define([
                         "templateLinker",
                         "controls[]"
                     ]
-                }, 
+                },
                 {
                     "key": "importDirective",
                     "implementation": ImportJSONDirective
