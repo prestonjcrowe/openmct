@@ -115,13 +115,28 @@ define(
             try {
                 json = JSON.parse(jsonString);
             } catch (e) {
-                return 'Not a valid JSON file\n:c';
+                return 'Malformed JSON file\n:c';
             }
-            if (json.openmct && Object.keys(json).length === 1) {
+            if (json.openmct && Object.keys(json).length === 1 &&
+                this.validKeys(json.openmct)) {
+
                 return 'Valid JSON';
             } else {
                 return 'JSON configuration not recognized\n:c';
             }
+        };
+
+        ImportJSONController.prototype.validKeys = function (tree) {
+            var valid = true;
+            var regEx =
+                /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+
+            Object.keys(tree).forEach(function (key) {
+                if (!(key.length === 36 && key.match(regEx) || key === 'mine')) {
+                    valid = false;
+                }
+            });
+            return valid;
         };
 
         ImportJSONController.prototype.newInput  = function () {
