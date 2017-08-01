@@ -107,6 +107,7 @@ define(['zepto'], function ($) {
         if (parent.hasCapability("composition")) {
     		    var parentModel = parent.getModel();
     		    parentModel.composition.forEach(function (childId, index) {
+                if (!tree[childId]) { return; }
     	          var newObj = this.instantiate(tree[childId], childId);
     			      parent.getCapability("composition").add(newObj);
     			      // if meant to be a link, dont set primary location (?)

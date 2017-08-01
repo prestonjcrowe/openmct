@@ -115,14 +115,15 @@ define(
             try {
                 json = JSON.parse(jsonString);
             } catch (e) {
-                return 'Malformed JSON file\n:c';
+                return "Malformed JSON or incorrect filetype";
+                //return 'Malformed JSON file\n:c';
             }
-            if (json.openmct && Object.keys(json).length === 1 &&
-                this.validKeys(json.openmct)) {
+            if (json.openmct && Object.keys(json).length === 1) {
 
                 return 'Valid JSON';
             } else {
-                return 'JSON configuration not recognized\n:c';
+                return "JSON format not recognized by Open MCT";
+                //return 'JSON configuration not recognized\n:c';
             }
         };
 
