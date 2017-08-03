@@ -23,8 +23,9 @@
 define([], function () {
     'use strict';
 
-    function ExportAsJSONAction(exportService, context) {
+    function ExportAsJSONAction(exportService, policyService, context) {
         this.exportService = exportService;
+        this.policyService = policyService;
         this.context = context;
         this.calls = 0;
     }
@@ -33,11 +34,7 @@ define([], function () {
         this.contructJSON(this.context.domainObject);
     }; 
 
-    ExportAsJSONAction.prototype.appliesTo = function (context) {
-        return context.domainObject !== undefined &&
-            context.domainObject.hasCapability("creation");
-    };
-
+    
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
         var tree = {};
         tree[rootObject.getId()] = rootObject.getModel();
@@ -49,13 +46,16 @@ define([], function () {
     };
 
     ExportAsJSONAction.prototype.write = function (tree, domainObject, callback) {
+
         this.calls++;
         if (domainObject.hasCapability('composition')) {
             domainObject.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child) { 
-                        tree[child.getId()] = child.getModel();
-                        this.write(tree, child, callback);
+                        if (this.isCreatable(child)) { 
+                            tree[child.getId()] = child.getModel();
+                            this.write(tree, child, callback);
+                        }
                     }.bind(this));
                     this.calls--;
                     if (this.calls === 0) {
@@ -70,9 +70,23 @@ define([], function () {
         }
     };
 
-	ExportAsJSONAction.prototype.wrap = function (tree) {
-		return {'openmct': tree};
-	};
+    ExportAsJSONAction.prototype.wrap = function (tree) {
+		    return {'openmct': tree};
+	  };
+
+    ExportAsJSONAction.prototype.isCreatable = function (domainObject) {
+        return this.policyService.allow(
+            "creation", 
+            domainObject.getCapability("type")
+        );
+
+    };
+
+    ExportAsJSONAction.appliesTo = function (context) {
+        // return context.domainObject !== undefined && 
+        //    isCreatable(context.domainObject);
+        return true;
+    };
 
     return ExportAsJSONAction;
 });

@@ -79,7 +79,7 @@ define(
                                 setValid(true);
                                 setText(this.files[0].name);
                             } else {
-                                //alert(validate(result));
+                                alert(validate(result));
                                 this.remove();
                                 setValid(false);
                                 setText('Select File');

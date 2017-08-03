@@ -80,43 +80,49 @@ define(['zepto'], function ($) {
             };
             fileReader.readAsText(file);
         })
-    }
+    };
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
         var parent = this.context.domainObject;
         // Generate tree with newly created ids
         var tree = this.generateNewTree(file);
-
         // Instantiate root object w/ its new id
-        var rootObj = parent.useCapability("instantiation", 
-            tree[Object.keys(tree)[0]]);
-        rootObj.getCapability("location").setPrimaryLocation(parent.getId());
+        
+        var rootObj = this.instantiate(tree[Object.keys(tree)[0]], Object.keys(tree)[0]);
+        this.rewriteId(Object.keys(tree)[0], rootObj.getId(), tree);
+        console.log("TREE: " + JSON.stringify(tree));
+        console.log(JSON.stringify(rootObj.getModel())); 
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
         this.deepInstantiate(rootObj, tree);
-
         // Add root object to the composition of the parent
         parent.getCapability("composition").add(rootObj);
+        console.log("ACTUAL ROOT ID: " + rootObj.getId());
     };
 
     // Traverses object tree, instantiates all domain object w/ new IDs and 
     //adds to parent's composition
     ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree) {
-
         if (parent.hasCapability("composition")) {
     		    var parentModel = parent.getModel();
     		    parentModel.composition.forEach(function (childId, index) {
                 if (!tree[childId]) { return; }
     	          var newObj = this.instantiate(tree[childId], childId);
-    			      parent.getCapability("composition").add(newObj);
+                parent.getCapability("composition").add(newObj);
     			      // if meant to be a link, dont set primary location (?)
-                if (Object.keys(tree).includes(tree[childId].location)) {				
-	                  newObj.getCapability("location").setPrimaryLocation(parent.getId());
-		            } else {
-                    newObj.getCapability("location").setPrimaryLocation(tree[childId].location);
+                if (tree[childId].location !== parent.getId()) {
+                    // this is the right check to make, BUT root obj location is changed
                 }
-				        this.deepInstantiate(newObj, tree);  			
+                // if an id in multiple compositions, there are several instances (some are links)
+                // in that case, always set location to be the location of the entry in tree, i.e
+                // tree[duplicatedID].location               
+                console.log(tree[childId].name + ' p: ' + parent.getModel().location + ' o: ' + 
+                    tree[childId].location);
+                
+                newObj.getCapability("location").setPrimaryLocation(tree[childId].location);
+
+                this.deepInstantiate(newObj, tree);  			
     		    }, this)
     	  }
     };
@@ -124,8 +130,8 @@ define(['zepto'], function ($) {
 	// For each domain object in the file, generate new ID, replace in JSON
     ImportAsJSONAction.prototype.generateNewTree = function(tree) {
     	Object.keys(tree).forEach(function (domainObjectId) {
-                var newId = this.identifierService.generate();
-                tree = this.rewriteId(domainObjectId, newId, tree);    
+            var newId = this.identifierService.generate();
+            tree = this.rewriteId(domainObjectId, newId, tree);    
         }, this);
         return tree;
     };
@@ -139,7 +145,19 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.resetButton = function (dialogModel) {
         dialogModel['sections'][0]['rows'][0].text = "Select File";
-    };    
+    };   
+
+    ImportAsJSONAction.prototype.isDuplicate = function (tree, id) {
+        var occurances = 0;
+        var composition;
+        Object.keys(tree).forEach(function (key) {
+            composition = tree[key].composition || [];
+            if (composition.includes(id)) {
+                occurances++;
+            }
+        });
+        return occurances > 1 ? true : false; 
+    }; 
 
     ImportAsJSONAction.appliesTo = function (context) {
         return context.domainObject !== undefined && 
