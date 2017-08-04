@@ -58,7 +58,8 @@ define([
                     "cssClass": "icon-download",
                     "depends": [ 
                         "exportService",
-                        "policyService"
+                        "policyService",
+                        "identifierService"
                     ]
                 },
                 {

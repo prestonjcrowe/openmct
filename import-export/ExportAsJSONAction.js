@@ -23,12 +23,12 @@
 define([], function () {
     'use strict';
 
-    function ExportAsJSONAction(exportService, policyService, context) {
+    function ExportAsJSONAction(exportService, policyService, identifierService, context) {
         this.exportService = exportService;
         this.policyService = policyService;
+        this.identifierService = identifierService;
         this.context = context;
         this.calls = 0;
-        this.seen = 0; //TEMP!!
         this.externalIdentifiers = [];
 
     }
@@ -55,23 +55,21 @@ define([], function () {
             domainObject.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child, index) { 
-                        this.seen++;                                   // temp!!!
                         if (this.isCreatable(child)) {
                             if (this.isExternal(child, domainObject, tree)) {
                                 this.externalIdentifiers.push(child.getId());
                                 var newModel = this.copyModel(child.getModel());
-                                var newId = "garbagio" + this.seen;     // temp!!!
+                                var newId = this.identifierService.generate();
                                 var index = tree[domainObject.getId()].composition.indexOf(child.getId());
 
                                 newModel.location = domainObject.getId();
                                 tree[newId] = newModel;
+                                tree[domainObject.getId()] = this.copyModel(domainObject.getModel());
                                 tree[domainObject.getId()].composition[index] = newId;
                             } else {
                                 tree[child.getId()] = child.getModel();
                             }
                             this.write(tree, child, callback);
-                            tree[domainObject.getId()].composition[index] = child.getId();
-
                         }
                     }.bind(this));
                     this.calls--;

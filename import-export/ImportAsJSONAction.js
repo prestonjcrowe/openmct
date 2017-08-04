@@ -91,6 +91,7 @@ define(['zepto'], function ($) {
         
         // Instantiate root object w/ its new id
         var rootObj = this.instantiate(tree[Object.keys(tree)[0]], Object.keys(tree)[0]);
+        rootObj.getCapability("location").setPrimaryLocation(parent.getId());
         //this.rewriteId(Object.keys(tree)[0], rootObj.getId(), tree);
 
         // Instantiate all objects in tree with their newly genereated ids,
