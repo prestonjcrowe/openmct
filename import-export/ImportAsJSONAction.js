@@ -55,6 +55,7 @@ define(['zepto'], function ($) {
                 input = document.getElementById('file-input');
                 this.readFile(input.files[0])
                     .then(function (result) {
+                        // validate here
                         this.beginImport(result['openmct']);
                     }.bind(this))
             }.bind(this));
@@ -84,21 +85,23 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
         var parent = this.context.domainObject;
+        
         // Generate tree with newly created ids
         var tree = this.generateNewTree(file);
-        // Instantiate root object w/ its new id
         
+        // Instantiate root object w/ its new id
         var rootObj = this.instantiate(tree[Object.keys(tree)[0]], Object.keys(tree)[0]);
-        this.rewriteId(Object.keys(tree)[0], rootObj.getId(), tree);
-        console.log("TREE: " + JSON.stringify(tree));
-        console.log(JSON.stringify(rootObj.getModel())); 
+        //this.rewriteId(Object.keys(tree)[0], rootObj.getId(), tree);
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
+        
+
         this.deepInstantiate(rootObj, tree);
         // Add root object to the composition of the parent
         parent.getCapability("composition").add(rootObj);
-        console.log("ACTUAL ROOT ID: " + rootObj.getId());
+        console.log(JSON.stringify(tree));
+        //console.log(JSON.stringify(rootObj));
     };
 
     // Traverses object tree, instantiates all domain object w/ new IDs and 
@@ -106,23 +109,32 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree) {
         if (parent.hasCapability("composition")) {
     		    var parentModel = parent.getModel();
-    		    parentModel.composition.forEach(function (childId, index) {
+    		    var newObj;
+            parentModel.composition.forEach(function (childId, index) {
                 if (!tree[childId]) { return; }
-    	          var newObj = this.instantiate(tree[childId], childId);
-                parent.getCapability("composition").add(newObj);
-    			      // if meant to be a link, dont set primary location (?)
-                if (tree[childId].location !== parent.getId()) {
-                    // this is the right check to make, BUT root obj location is changed
-                }
-                // if an id in multiple compositions, there are several instances (some are links)
-                // in that case, always set location to be the location of the entry in tree, i.e
-                // tree[duplicatedID].location               
-                console.log(tree[childId].name + ' p: ' + parent.getModel().location + ' o: ' + 
-                    tree[childId].location);
-                
-                newObj.getCapability("location").setPrimaryLocation(tree[childId].location);
+    	          
 
-                this.deepInstantiate(newObj, tree);  			
+    			      // if link is exported without original object in tree, be sure to
+                //  instantiate as new object
+                if (tree[childId].location !== parent.getId() && 
+                    !Object.keys(tree).includes(tree[childId].location)) { 
+                        console.log(tree[childId].name + ' is a link to a non-exisiting obj');
+                        //tree[childId].location = parent.getId();
+
+                       // CREATE A NEW OBJECT, REMOVE FROM COMP OF PARENTS
+                       //newObj = parent.useCapability("instantiation", tree[childId]);
+                       //newObj.getCapability("location").setPrimaryLocation(parent.getId());
+                       //parent.getCapability("composition").add(newObj);
+                       //this.deepInstantiate(this.instantiate(tree[childId], childId));
+                }
+                
+                newObj = this.instantiate(tree[childId], childId);
+                parent.getCapability("composition").add(newObj);
+                 
+                //console.log(newObj.getModel().name + ' l: ' +  newObj.getCapability("location").isLink()); 
+                newObj.getCapability("location").setPrimaryLocation(tree[childId].location);
+                this.deepInstantiate(newObj, tree); 
+                 			
     		    }, this)
     	  }
     };
@@ -130,6 +142,10 @@ define(['zepto'], function ($) {
 	// For each domain object in the file, generate new ID, replace in JSON
     ImportAsJSONAction.prototype.generateNewTree = function(tree) {
     	Object.keys(tree).forEach(function (domainObjectId) {
+            var model = tree[domainObjectId];
+            if (!tree[model.location]) {
+              // find a thing to be it's parent?
+            }
             var newId = this.identifierService.generate();
             tree = this.rewriteId(domainObjectId, newId, tree);    
         }, this);
@@ -156,6 +172,7 @@ define(['zepto'], function ($) {
                 occurances++;
             }
         });
+        //console.log(occurances);
         return occurances > 1 ? true : false; 
     }; 
 

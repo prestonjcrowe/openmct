@@ -23,21 +23,31 @@
 
 define([
     "openmct",
-    "platform/core/src/identifiers/IdentifierProvider",
     "./ExportAsJSONAction",
-    "./ImportAsJSONAction"
+    "./ImportAsJSONAction",
+    "./src/controllers/ImportJSONController",
+    "./src/directives/ImportJSONDirective",
+    "text!./res/templates/controls/importJSONButton.html"
     ], 
 
     function (
         openmct, 
-        IndentifierProvider,
         ExportAsJSONAction, 
-        ImportAsJSONAction
+        ImportAsJSONAction,
+        ImportJSONController,
+        ImportJSONDirective,
+        importJSONtemplate
     ) {
+    
+    ExportAsJSONAction.appliesTo = function (context) {
+        return openmct.$injector.get('policyService')
+          .allow("creation", context.domainObject.getCapability("type")
+        );
+    };
     
     openmct.legacyRegistry.register("import-export", {
         "name": "Import-export plugin",
-        "description": "Allows importing and exporting of domain objects as JSON.",
+        "description": "Allows importing / exporting of domain objects as JSON.",
         "extensions": {
             "actions": [
                 {
@@ -47,9 +57,9 @@ define([
                     "category": "contextual",
                     "cssClass": "icon-download",
                     "depends": [ 
-                                "exportService",
-                                "policyService"
-                            ]
+                        "exportService",
+                        "policyService"
+                    ]
                 },
                 {
                     "key": "example.import.JSON",
@@ -58,11 +68,32 @@ define([
                     "category": "contextual",
                     "cssClass": "icon-download",
                     "depends": [ 
-                                "exportService",
-                                "identifierService",
-                                "dialogService",
-                                "openmct"
-                            ]
+                         "exportService",
+                         "identifierService",
+                         "dialogService",
+                         "openmct"
+                    ]
+                }
+            ],
+            "controls": [
+                {
+                    "key": "import-json",
+                    "template": importJSONtemplate
+                }
+            ],
+            "controllers": [
+                {   
+                    "key": "ImportJSONController",
+                    "implementation": ImportJSONController,
+                    "depends": [
+                        "$scope"
+                    ]
+                }
+            ],
+            "directives": [
+                {
+                    "key": "importDirective",
+                    "implementation": ImportJSONDirective
                 }
             ]
         }
