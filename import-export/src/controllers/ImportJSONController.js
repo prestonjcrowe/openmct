@@ -49,17 +49,13 @@ define(
                 fileInput = this.newInput();
             }
 
-            // could user _.bindAll() here?
+            // could use _.bindAll() here?
             var read = function (file) {
                 return this.readFile(file);
             }.bind(this);
 
             var setText = function (text) {
                 this.structure.text = text;
-            }.bind(this);
-
-            var validate = function (jsonString) {
-                return this.validateJSON(jsonString);
             }.bind(this);
 
             var setValid = function (state) {
@@ -75,15 +71,15 @@ define(
                 if (this.files[0]) {
                     fileBody = read(this.files[0])
                         .then(function (result) {
-                            if (validate(result) === 'Valid JSON') {
+                            //if (validate(result) === 'Valid JSON') {
                                 setValid(true);
                                 setText(this.files[0].name);
-                            } else {
-                                alert(validate(result));
-                                this.remove();
-                                setValid(false);
-                                setText('Select File');
-                            }
+                            //} else {
+                                // alert(validate(result));
+                                // this.remove();
+                                // setValid(false);
+                                // setText('Select File');
+                            //}
                         }.bind(this));
                 } else {
                     setValid(false);

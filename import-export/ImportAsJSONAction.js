@@ -57,7 +57,7 @@ define(['zepto'], function ($) {
                     .then(function (result) {
                         // validate here
                         this.beginImport(result['openmct']);
-                    }.bind(this))
+                    }.bind(this), () => alert("REJECTED"))
             }.bind(this));
 
         this.resetButton(IMPORT_FORM);
@@ -69,11 +69,17 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.readFile = function (file) {
         var contents = '';
         var fileReader = new FileReader();
+        var validateJSON = this.validateJSON;
 
         return new Promise(function (resolve, reject) {
             fileReader.onload = function (event) {
-                contents = JSON.parse(event.target.result);
-                resolve(contents);
+                if(validateJSON(event.target.result) == "Valid JSON") {
+                    contents = JSON.parse(event.target.result);
+                    resolve(contents);
+                } else {
+                    //alert(validateJSON(event.target.result));
+                    return reject(contents);
+                }
             };
 
             fileReader.onerror = function () {
@@ -163,9 +169,25 @@ define(['zepto'], function ($) {
                 occurances++;
             }
         });
-        //console.log(occurances);
         return occurances > 1 ? true : false; 
     }; 
+
+    ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
+        var json;
+        try {
+            json = JSON.parse(jsonString);
+        } catch (e) {
+            return "Malformed JSON or incorrect filetype";
+            //return 'Malformed JSON file\n:c';
+        }
+        if (json.openmct && Object.keys(json).length === 1) {
+
+            return "Valid JSON";
+        } else {
+            return "JSON format not recognized by Open MCT";
+            //return 'JSON configuration not recognized\n:c';
+        }
+    };
 
     ImportAsJSONAction.appliesTo = function (context) {
         return context.domainObject !== undefined && 
