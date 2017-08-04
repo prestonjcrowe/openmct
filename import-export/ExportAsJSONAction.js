@@ -23,14 +23,16 @@
 define([], function () {
     'use strict';
 
-    function ExportAsJSONAction(exportService, policyService, identifierService, context) {
+    function ExportAsJSONAction(exportService, policyService, 
+        identifierService, context) {
+         
+        this.root;
+        this.calls = 0; 
+        this.context = context;
+        this.externalIdentifiers = [];
         this.exportService = exportService;
         this.policyService = policyService;
         this.identifierService = identifierService;
-        this.context = context;
-        this.calls = 0;
-        this.externalIdentifiers = [];
-
     }
 
     ExportAsJSONAction.prototype.perform = function() {
@@ -40,7 +42,10 @@ define([], function () {
     
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
         var tree = {};
-        tree[rootObject.getId()] = rootObject.getModel();
+        tree[rootObject.getId()] = rootObject.getModel;
+        // Must be included in tree during building to check link status,
+        // removed after tree is built and re-added with "root" wrapper
+        this.root = rootObject;
 
         this.write(tree, rootObject, function (result) {
             this.exportService.exportJSON(result, 
@@ -55,17 +60,25 @@ define([], function () {
             domainObject.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child, index) { 
+                        // Only export if object is creatable
                         if (this.isCreatable(child)) {
+                            // If object is a link to something absent from 
+                            // tree, generate new id and treat as new object      
+                            // Can be cleaned up / rewritten as separate func
                             if (this.isExternal(child, domainObject, tree)) {
                                 this.externalIdentifiers.push(child.getId());
                                 var newModel = this.copyModel(child.getModel());
                                 var newId = this.identifierService.generate();
-                                var index = tree[domainObject.getId()].composition.indexOf(child.getId());
+                                var index = tree[domainObject.getId()]
+                                    .composition.indexOf(child.getId());
 
                                 newModel.location = domainObject.getId();
                                 tree[newId] = newModel;
-                                tree[domainObject.getId()] = this.copyModel(domainObject.getModel());
-                                tree[domainObject.getId()].composition[index] = newId;
+                                tree[domainObject.getId()] = 
+                                    this.copyModel(domainObject.getModel());
+
+                                tree[domainObject.getId()]
+                                    .composition[index] = newId;
                             } else {
                                 tree[child.getId()] = child.getModel();
                             }
@@ -74,21 +87,16 @@ define([], function () {
                     }.bind(this));
                     this.calls--;
                     if (this.calls === 0) {
-                        callback(this.wrap(tree));
+                        callback(this.wrap(tree, this.root));
                     }
                 }.bind(this))
         } else {
             this.calls--;
             if (this.calls === 0) {
-                callback(this.wrap(tree));
+                callback(this.wrap(tree, this.root));
             }
         }
     };
-
-    // if guy is an outside link, add to array of "external ids"
-    // this way, even when new guy is created and subsequent guys
-    // return false for isExternal, i can check that array and create
-    // a new object anyway
 
     ExportAsJSONAction.prototype.copyModel = function (model) {
         var jsonString = JSON.stringify(model);
@@ -99,14 +107,23 @@ define([], function () {
         if (child.getModel().location !== parent.getId() &&
             !Object.keys(tree).includes(child.getModel().location) ||
             this.externalIdentifiers.includes(child.getId())) {
-            console.log(child.getModel().name + ' is a link to a non-exisiting obj');
             return true;
         }
         return false;
     };
 
-    ExportAsJSONAction.prototype.wrap = function (tree) {
-		    return {'openmct': tree};
+    ExportAsJSONAction.prototype.wrap = function (tree, root) {
+        // Delete "flat" record of root object and rewrite it wrapped as "root"
+        delete tree[root.getId()];
+        
+        // Wrap root object for identification on import
+        var rootObject = {};
+        rootObject[root.getId()] = root.getModel();
+        tree["root"] = rootObject;
+
+        return {
+            "openmct": tree
+        };
 	  };
 
     ExportAsJSONAction.prototype.isCreatable = function (domainObject) {
