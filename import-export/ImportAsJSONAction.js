@@ -39,12 +39,12 @@ define(['zepto'], function ($) {
 
     function ImportAsJSONAction(exportService, identifierService, dialogService,
          openmct, context) {
-
-        this.exportService = exportService;
+        
         this.openmct = openmct;
-        this.identifierService = identifierService;
-        this.dialogService = dialogService;
         this.context = context;
+        this.exportService = exportService;
+        this.dialogService = dialogService;
+        this.identifierService = identifierService;
         this.instantiate = openmct.$injector.get('instantiate');
     };
 
@@ -55,8 +55,7 @@ define(['zepto'], function ($) {
                 input = document.getElementById('file-input');
                 this.readFile(input.files[0])
                     .then(function (result) {
-                        // validate here
-                        this.beginImport(result['openmct']);
+                        this.beginImport(result["openmct"]);
                     }.bind(this), () => alert("REJECTED"))
             }.bind(this));
 
@@ -96,53 +95,43 @@ define(['zepto'], function ($) {
         var tree = this.generateNewTree(file);
         
         // Instantiate root object w/ its new id
-        var rootObj = this.instantiate(tree[Object.keys(tree)[0]], Object.keys(tree)[0]);
+        var rootId = Object.keys(tree["root"])[0];
+        var rootObj = this.instantiate(tree["root"][rootId], rootId);
         rootObj.getCapability("location").setPrimaryLocation(parent.getId());
-        //this.rewriteId(Object.keys(tree)[0], rootObj.getId(), tree);
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
-        
-
         this.deepInstantiate(rootObj, tree);
+        
         // Add root object to the composition of the parent
         parent.getCapability("composition").add(rootObj);
-        console.log(JSON.stringify(tree));
-        //console.log(JSON.stringify(rootObj));
     };
 
     // Traverses object tree, instantiates all domain object w/ new IDs and 
     //adds to parent's composition
     ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree) {
         if (parent.hasCapability("composition")) {
-    		    var parentModel = parent.getModel();
-    		    var newObj;
-                parentModel.composition.forEach(function (childId, index) {
-                    if (!tree[childId]) { return; }
-
-                    if (tree[childId].location !== parent.getId() && 
-                        !Object.keys(tree).includes(tree[childId].location)) { 
-                            console.log(tree[childId].name + ' is a link to a non-exisiting obj');
-                    }
-                
-                    newObj = this.instantiate(tree[childId], childId);
-                    parent.getCapability("composition").add(newObj);
-                 
-                    newObj.getCapability("location").setPrimaryLocation(tree[childId].location);
-                    this.deepInstantiate(newObj, tree); 
-                 			
-    		    }, this)
-    	  }
+		    var parentModel = parent.getModel();
+		    var newObj;
+            parentModel.composition.forEach(function (childId, index) {
+                if (!tree[childId]) { return; }
+            
+                newObj = this.instantiate(tree[childId], childId);
+                parent.getCapability("composition").add(newObj);
+             
+                newObj.getCapability("location")
+                    .setPrimaryLocation(tree[childId].location);
+                this.deepInstantiate(newObj, tree);                 			
+		    }, this)
+    	}
     };
 
 	// For each domain object in the file, generate new ID, replace in JSON
     ImportAsJSONAction.prototype.generateNewTree = function(tree) {
     	Object.keys(tree).forEach(function (domainObjectId) {
-            // PETE NOTES //
-            /*var model = tree[domainObjectId];
-            if (!tree[model.location]) {
-              // find a thing to be it's parent?
-            }*/
+            if (domainObjectId === "root") {
+                domainObjectId = Object.keys(tree["root"])[0];
+            }
             var newId = this.identifierService.generate();
             tree = this.rewriteId(domainObjectId, newId, tree);    
         }, this);
