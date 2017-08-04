@@ -51,8 +51,8 @@ define([], function () {
         if (domainObject.hasCapability('composition')) {
             domainObject.useCapability('composition')
                 .then(function (children) {
-                    children.forEach(function (child) { 
-                        if (this.isCreatable(child)) { 
+                    children.forEach(function (child, index) { 
+                        if (this.isCreatable(child)) {
                             tree[child.getId()] = child.getModel();
                             this.write(tree, child, callback);
                         }
@@ -70,6 +70,15 @@ define([], function () {
         }
     };
 
+    ExportAsJSONAction.prototype.isExternal = function (childId, parent, tree) {
+        if (tree[childId].location !== parent.getId() &&
+            !Object.keys(tree).includes(tree[childId].location)) {
+            //console.log(tree[childId].name + ' is a link to a non-exisiting obj');
+            return true;
+        }
+        return false;
+    };
+
     ExportAsJSONAction.prototype.wrap = function (tree) {
 		    return {'openmct': tree};
 	  };
@@ -80,12 +89,6 @@ define([], function () {
             domainObject.getCapability("type")
         );
 
-    };
-
-    ExportAsJSONAction.appliesTo = function (context) {
-        // return context.domainObject !== undefined && 
-        //    isCreatable(context.domainObject);
-        return true;
     };
 
     return ExportAsJSONAction;
