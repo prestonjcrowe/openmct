@@ -28,6 +28,9 @@ define([], function () {
         this.policyService = policyService;
         this.context = context;
         this.calls = 0;
+        this.seen = 0; //TEMP!!
+        this.externalIdentifiers = [];
+
     }
 
     ExportAsJSONAction.prototype.perform = function() {
@@ -52,9 +55,23 @@ define([], function () {
             domainObject.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child, index) { 
+                        this.seen++;                                   // temp!!!
                         if (this.isCreatable(child)) {
-                            tree[child.getId()] = child.getModel();
+                            if (this.isExternal(child, domainObject, tree)) {
+                                this.externalIdentifiers.push(child.getId());
+                                var newModel = this.copyModel(child.getModel());
+                                var newId = "garbagio" + this.seen;     // temp!!!
+                                var index = tree[domainObject.getId()].composition.indexOf(child.getId());
+
+                                newModel.location = domainObject.getId();
+                                tree[newId] = newModel;
+                                tree[domainObject.getId()].composition[index] = newId;
+                            } else {
+                                tree[child.getId()] = child.getModel();
+                            }
                             this.write(tree, child, callback);
+                            tree[domainObject.getId()].composition[index] = child.getId();
+
                         }
                     }.bind(this));
                     this.calls--;
@@ -70,10 +87,21 @@ define([], function () {
         }
     };
 
-    ExportAsJSONAction.prototype.isExternal = function (childId, parent, tree) {
-        if (tree[childId].location !== parent.getId() &&
-            !Object.keys(tree).includes(tree[childId].location)) {
-            //console.log(tree[childId].name + ' is a link to a non-exisiting obj');
+    // if guy is an outside link, add to array of "external ids"
+    // this way, even when new guy is created and subsequent guys
+    // return false for isExternal, i can check that array and create
+    // a new object anyway
+
+    ExportAsJSONAction.prototype.copyModel = function (model) {
+        var jsonString = JSON.stringify(model);
+        return JSON.parse(jsonString);
+    }
+
+    ExportAsJSONAction.prototype.isExternal = function (child, parent, tree) {
+        if (child.getModel().location !== parent.getId() &&
+            !Object.keys(tree).includes(child.getModel().location) ||
+            this.externalIdentifiers.includes(child.getId())) {
+            console.log(child.getModel().name + ' is a link to a non-exisiting obj');
             return true;
         }
         return false;
