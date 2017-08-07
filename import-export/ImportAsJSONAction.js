@@ -37,6 +37,19 @@ define(['zepto'], function ($) {
     	}]
     };
 
+    var ERROR_FORM = {
+        name: "Invalid File Choice",
+        sections: [{
+            name: "Error",
+            rows: [{
+                name: 'Either the file was not valid JSON, or malformed. Please try a different file.',
+                key: 'error-msg',
+                required: false,
+                text: 'Either the file was not valid JSON, or malformed. Please try a different file.'
+            }]
+        }]
+    };
+
     function ImportAsJSONAction(exportService, identifierService, 
         dialogService, openmct, context) {
         
@@ -56,7 +69,8 @@ define(['zepto'], function ($) {
                 this.readFile(input.files[0])
                     .then(function (result) {
                         this.beginImport(result["openmct"]);
-                    }.bind(this), () => alert("REJECTED"))
+                    //}.bind(this), () => alert("REJECTED"))
+                }.bind(this), this.displayValidateError(this.dialogService))
             }.bind(this));
 
         this.resetButton(IMPORT_FORM);
@@ -115,8 +129,6 @@ define(['zepto'], function ($) {
         return tree;
     };
 
-    // can stringify once, then preform all replaces, then parse
-    // Generates new random id, replacs new id in tree then returns tree
     ImportAsJSONAction.prototype.rewriteId = function (oldID, newID, tree) {
         tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
         return JSON.parse(tree);
@@ -150,7 +162,7 @@ define(['zepto'], function ($) {
                     resolve(contents);
                 } else {
                     //alert(validateJSON(event.target.result));
-                    return reject(contents);
+                    reject(contents);
                 }
             };
 
@@ -169,11 +181,16 @@ define(['zepto'], function ($) {
             return "Malformed JSON or incorrect filetype";
         }
         if (json.openmct && Object.keys(json).length === 1) {
-
             return "Valid JSON";
         } else {
             return "JSON format not recognized by Open MCT";
         }
+    };
+
+    ImportAsJSONAction.prototype.displayValidateError = function (dialogService) {
+        dialogService.getUserInput(ERROR_FORM)
+            .then(function (result) {            
+            })
     };
 
     ImportAsJSONAction.appliesTo = function (context) {

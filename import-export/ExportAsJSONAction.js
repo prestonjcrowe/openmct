@@ -39,7 +39,6 @@ define([], function () {
         this.contructJSON(this.context.domainObject);
     }; 
 
-    
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
         var tree = {};
         tree[rootObject.getId()] = rootObject.getModel();
@@ -53,11 +52,11 @@ define([], function () {
         }.bind(this));
     };
 
-    ExportAsJSONAction.prototype.write = function (tree, domainObject, callback) {
+    ExportAsJSONAction.prototype.write = function (tree, parent, callback) {
 
         this.calls++;
-        if (domainObject.hasCapability('composition')) {
-            domainObject.useCapability('composition')
+        if (parent.hasCapability('composition')) {
+            parent.useCapability('composition')
                 .then(function (children) {
                     children.forEach(function (child, index) { 
                         // Only export if object is creatable
@@ -65,8 +64,8 @@ define([], function () {
                             // If object is a link to something absent from 
                             // tree, generate new id and treat as new object      
                             // Can be cleaned up / rewritten as separate func
-                            if (this.isExternal(child, domainObject, tree)) {
-                                this.rewriteLinked(child, domainObject, tree);
+                            if (this.isExternal(child, parent, tree)) {
+                                this.rewriteLink(child, parent, tree);
                             } else {
                                 tree[child.getId()] = child.getModel();
                             }
@@ -86,7 +85,7 @@ define([], function () {
         }
     };
 
-    ExportAsJSONAction.prototype.rewriteLinked = function (child, parent, tree) {
+    ExportAsJSONAction.prototype.rewriteLink = function (child, parent, tree) {
         this.externalIdentifiers.push(child.getId());
         var parentModel = parent.getModel();
         var childModel = child.getModel();
@@ -117,11 +116,10 @@ define([], function () {
     ExportAsJSONAction.prototype.wrap = function (tree, root) {
         // Wrap root object for identification on import
         // Important to use current "tree" state of root
-        // obj because composition has changed
+        // object because its composition may have been altered
         var rootObject = {};
         rootObject[root.getId()] = tree[root.getId()];
         tree["root"] = rootObject;
-        console.log("final: " + JSON.stringify(tree));
         delete tree[root.getId()];
         return {
             "openmct": tree
