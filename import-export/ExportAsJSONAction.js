@@ -42,10 +42,10 @@ define([], function () {
     
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
         var tree = {};
-        tree[rootObject.getId()] = rootObject.getModel;
-        // Must be included in tree during building to check link status,
-        // removed after tree is built and re-added with "root" wrapper
+        tree[rootObject.getId()] = rootObject.getModel();
         this.root = rootObject;
+        // Root be included in tree during building to check link status,
+        // removed after tree is built and re-added with "root" wrapper
 
         this.write(tree, rootObject, function (result) {
             this.exportService.exportJSON(result, 
@@ -66,19 +66,7 @@ define([], function () {
                             // tree, generate new id and treat as new object      
                             // Can be cleaned up / rewritten as separate func
                             if (this.isExternal(child, domainObject, tree)) {
-                                this.externalIdentifiers.push(child.getId());
-                                var newModel = this.copyModel(child.getModel());
-                                var newId = this.identifierService.generate();
-                                var index = tree[domainObject.getId()]
-                                    .composition.indexOf(child.getId());
-
-                                newModel.location = domainObject.getId();
-                                tree[newId] = newModel;
-                                tree[domainObject.getId()] = 
-                                    this.copyModel(domainObject.getModel());
-
-                                tree[domainObject.getId()]
-                                    .composition[index] = newId;
+                                this.rewriteLinked(child, domainObject, tree);
                             } else {
                                 tree[child.getId()] = child.getModel();
                             }
@@ -98,10 +86,24 @@ define([], function () {
         }
     };
 
+    ExportAsJSONAction.prototype.rewriteLinked = function (child, parent, tree) {
+        this.externalIdentifiers.push(child.getId());
+        var parentModel = parent.getModel();
+        var childModel = child.getModel();
+        var index = parentModel.composition.indexOf(child.getId());
+        var newModel = this.copyModel(childModel);
+        var newId = this.identifierService.generate();
+
+        newModel.location = parent.getId();
+        tree[newId] = newModel;
+        tree[parent.getId()] = this.copyModel(parentModel);
+        tree[parent.getId()].composition[index] = newId;
+    };
+
     ExportAsJSONAction.prototype.copyModel = function (model) {
         var jsonString = JSON.stringify(model);
         return JSON.parse(jsonString);
-    }
+    };
 
     ExportAsJSONAction.prototype.isExternal = function (child, parent, tree) {
         if (child.getModel().location !== parent.getId() &&
@@ -113,25 +115,24 @@ define([], function () {
     };
 
     ExportAsJSONAction.prototype.wrap = function (tree, root) {
-        // Delete "flat" record of root object and rewrite it wrapped as "root"
-        delete tree[root.getId()];
-        
         // Wrap root object for identification on import
+        // Important to use current "tree" state of root
+        // obj because composition has changed
         var rootObject = {};
-        rootObject[root.getId()] = root.getModel();
+        rootObject[root.getId()] = tree[root.getId()];
         tree["root"] = rootObject;
-
+        console.log("final: " + JSON.stringify(tree));
+        delete tree[root.getId()];
         return {
             "openmct": tree
         };
-	  };
+	};
 
     ExportAsJSONAction.prototype.isCreatable = function (domainObject) {
         return this.policyService.allow(
             "creation", 
             domainObject.getCapability("type")
         );
-
     };
 
     return ExportAsJSONAction;

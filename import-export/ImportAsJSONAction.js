@@ -37,8 +37,8 @@ define(['zepto'], function ($) {
     	}]
     };
 
-    function ImportAsJSONAction(exportService, identifierService, dialogService,
-         openmct, context) {
+    function ImportAsJSONAction(exportService, identifierService, 
+        dialogService, openmct, context) {
         
         this.openmct = openmct;
         this.context = context;
@@ -63,29 +63,6 @@ define(['zepto'], function ($) {
         if (input) {
             input.remove();
         }
-    };
-
-    ImportAsJSONAction.prototype.readFile = function (file) {
-        var contents = '';
-        var fileReader = new FileReader();
-        var validateJSON = this.validateJSON;
-
-        return new Promise(function (resolve, reject) {
-            fileReader.onload = function (event) {
-                if(validateJSON(event.target.result) == "Valid JSON") {
-                    contents = JSON.parse(event.target.result);
-                    resolve(contents);
-                } else {
-                    //alert(validateJSON(event.target.result));
-                    return reject(contents);
-                }
-            };
-
-            fileReader.onerror = function () {
-                return reject(contents);
-            };
-            fileReader.readAsText(file);
-        })
     };
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
@@ -161,20 +138,41 @@ define(['zepto'], function ($) {
         return occurances > 1 ? true : false; 
     }; 
 
+    ImportAsJSONAction.prototype.readFile = function (file) {
+        var contents = '';
+        var fileReader = new FileReader();
+        var validateJSON = this.validateJSON;
+
+        return new Promise(function (resolve, reject) {
+            fileReader.onload = function (event) {
+                if(validateJSON(event.target.result) == "Valid JSON") {
+                    contents = JSON.parse(event.target.result);
+                    resolve(contents);
+                } else {
+                    //alert(validateJSON(event.target.result));
+                    return reject(contents);
+                }
+            };
+
+            fileReader.onerror = function () {
+                return reject(contents);
+            };
+            fileReader.readAsText(file);
+        })
+    };
+
     ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
         var json;
         try {
             json = JSON.parse(jsonString);
         } catch (e) {
             return "Malformed JSON or incorrect filetype";
-            //return 'Malformed JSON file\n:c';
         }
         if (json.openmct && Object.keys(json).length === 1) {
 
             return "Valid JSON";
         } else {
             return "JSON format not recognized by Open MCT";
-            //return 'JSON configuration not recognized\n:c';
         }
     };
 
