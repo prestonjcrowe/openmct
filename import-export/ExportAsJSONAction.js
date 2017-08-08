@@ -114,8 +114,10 @@ define([], function () {
     // not exist in the exported tree.
     ExportAsJSONAction.prototype.isExternal = function (child, parent, tree) {
         if (child.getModel().location !== parent.getId() &&
-            !Object.keys(tree).includes(child.getModel().location) ||
+            !Object.keys(tree).includes(child.getModel().location) &&
+            child.getId() !== this.root.getId() ||
             this.externalIdentifiers.includes(child.getId())) {
+
             return true;
         }
         return false;

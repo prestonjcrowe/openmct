@@ -56,7 +56,9 @@ define(['zepto'], function ($) {
                 this.readFile(input.files[0])
                     .then(function (result) {
                         this.beginImport(result['openmct']);
-                }.bind(this), () => alert("REJECTED"))
+                }.bind(this), function (result) {
+                    this.displayError();
+                }.bind(this))
             }.bind(this));
 
         this.resetButton(IMPORT_FORM);
@@ -75,6 +77,10 @@ define(['zepto'], function ($) {
         var rootId = Object.keys(tree["root"])[0];
         var rootObj = this.instantiate(tree["root"][rootId], rootId);
         rootObj.getCapability("location").setPrimaryLocation(parent.getId());
+
+        // Remove wrapper from root after getting a handle on the root object
+        // and generating new ids
+        tree = this.flattenTree(tree, rootId);
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
@@ -116,6 +122,13 @@ define(['zepto'], function ($) {
         return tree;
     };
 
+    ImportAsJSONAction.prototype.flattenTree = function(tree, rootId) {
+        var rootModel = tree['root'][rootId];
+        tree[rootId] = rootModel;
+        delete tree['root'];
+        return tree;
+    }
+
     ImportAsJSONAction.prototype.rewriteId = function (oldID, newID, tree) {
         tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
         return JSON.parse(tree);
@@ -124,18 +137,6 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.resetButton = function (dialogModel) {
         dialogModel['sections'][0]['rows'][0].text = "Select File";
     };   
-
-    ImportAsJSONAction.prototype.isDuplicate = function (tree, id) {
-        var occurances = 0;
-        var composition;
-        Object.keys(tree).forEach(function (key) {
-            composition = tree[key].composition || [];
-            if (composition.includes(id)) {
-                occurances++;
-            }
-        });
-        return occurances > 1 ? true : false; 
-    }; 
 
     ImportAsJSONAction.prototype.readFile = function (file) {
         var contents = '';
@@ -171,6 +172,25 @@ define(['zepto'], function ($) {
         } else {
             return false;
         }
+    };
+
+    ImportAsJSONAction.prototype.displayError = function () {
+        var dialog,
+        model = {
+            title: "Invalid File Choice",
+            actionText: "File was either malformed or not exported by " +
+                "Open MCT. Please try another JSON file.",
+            severity: "error",
+            options: [
+                {
+                    label: "Ok",
+                    callback: function () {
+                        dialog.dismiss();
+                    }
+                }
+            ]
+        };
+        dialog = this.dialogService.showBlockingMessage(model);
     };
 
     ImportAsJSONAction.appliesTo = function (context) {
