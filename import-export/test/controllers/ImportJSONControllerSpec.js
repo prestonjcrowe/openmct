@@ -33,50 +33,6 @@ define(
                 controller = new ImportJSONController(mockScope);
             });
 
-            it("validates JSON input", function () {
-                // how to test this without testing internal methods?
-                var malformed = "This isn't JSON at all...";
-                var noWrapper = JSON.stringify({
-                    "12345678-1234-1234-1234-123456789123": {
-                        "name": "test",
-                        "type": "folder",
-                        "modified": 1501518245817,
-                        "location": "mine",
-                        "persisted": 1501518245817
-                    }
-                });
-
-                var invalidId = JSON.stringify({
-                    "openmct": {
-                        "12345678-1234-1234-1234-123456789123XXX": {
-                            "name": "test",
-                            "type": "folder",
-                            "modified": 1501518245817,
-                            "location": "mine",
-                            "persisted": 1501518245817
-                        }
-                    }
-                });
-
-                var validInput = JSON.stringify({
-                    "openmct": {
-                        "12345678-1234-1234-1234-123456789123": {
-                            "name": "test",
-                            "type": "folder",
-                            "modified": 1501518245817,
-                            "location": "mine",
-                            "persisted": 1501518245817
-                        }
-                    }
-                });
-
-
-                expect(controller.validateJSON(malformed)).toBe(false);
-                expect(controller.validateJSON(noWrapper)).toBe(false);
-                expect(controller.validateJSON(invalidId)).toBe(false);
-                expect(controller.validateJSON(validInput)).toBe(true);
-            });
-
         });
     }
 );

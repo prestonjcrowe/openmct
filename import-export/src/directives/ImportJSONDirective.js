@@ -26,9 +26,9 @@ define(
 
         function ImportJSONDirective($parse, property, attribute) {
             function link(scope, element, attrs, control) {
-                control.$setValidity("import", false);
+                control.$setValidity("importJSONButton", false);
                 scope.$watch('validInput', function (newValue, oldValue) {
-                    control.$setValidity("import", newValue);
+                    control.$setValidity("importJSONButton", newValue);
                 });
             }
 

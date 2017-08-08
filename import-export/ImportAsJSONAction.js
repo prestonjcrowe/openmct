@@ -37,19 +37,6 @@ define(['zepto'], function ($) {
     	}]
     };
 
-    var ERROR_FORM = {
-        name: "Invalid File Choice",
-        sections: [{
-            name: "Error",
-            rows: [{
-                name: 'Either the file was not valid JSON, or malformed. Please try a different file.',
-                key: 'error-msg',
-                required: false,
-                text: 'Either the file was not valid JSON, or malformed. Please try a different file.'
-            }]
-        }]
-    };
-
     function ImportAsJSONAction(exportService, identifierService, 
         dialogService, openmct, context) {
         
@@ -58,19 +45,18 @@ define(['zepto'], function ($) {
         this.exportService = exportService;
         this.dialogService = dialogService;
         this.identifierService = identifierService;
-        this.instantiate = openmct.$injector.get('instantiate');
+        this.instantiate = openmct.$injector.get("instantiate");
     };
 
     ImportAsJSONAction.prototype.perform = function() {
         var input;
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (result) {
-                input = document.getElementById('file-input');
+                input = document.getElementById("file-input");
                 this.readFile(input.files[0])
                     .then(function (result) {
-                        this.beginImport(result["openmct"]);
-                    //}.bind(this), () => alert("REJECTED"))
-                }.bind(this), this.displayValidateError(this.dialogService))
+                        this.beginImport(result['openmct']);
+                }.bind(this), () => alert("REJECTED"))
             }.bind(this));
 
         this.resetButton(IMPORT_FORM);
@@ -92,7 +78,7 @@ define(['zepto'], function ($) {
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
-        this.deepInstantiate(rootObj, tree);
+        this.deepInstantiate(rootObj, tree, []);
         
         // Add root object to the composition of the parent
         parent.getCapability("composition").add(rootObj);
@@ -100,19 +86,20 @@ define(['zepto'], function ($) {
 
     // Traverses object tree, instantiates all domain object w/ new IDs and 
     //adds to parent's composition
-    ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree) {
+    ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree, seen) {
         if (parent.hasCapability("composition")) {
 		    var parentModel = parent.getModel();
 		    var newObj;
+            seen.push(parent.getId());
             parentModel.composition.forEach(function (childId, index) {
-                if (!tree[childId]) { return; }
+                if (!tree[childId] || seen.includes(childId)) { return; }
             
                 newObj = this.instantiate(tree[childId], childId);
                 parent.getCapability("composition").add(newObj);
              
                 newObj.getCapability("location")
                     .setPrimaryLocation(tree[childId].location);
-                this.deepInstantiate(newObj, tree);                 			
+                this.deepInstantiate(newObj, tree, seen);                 			
 		    }, this)
     	}
     };
@@ -157,12 +144,11 @@ define(['zepto'], function ($) {
 
         return new Promise(function (resolve, reject) {
             fileReader.onload = function (event) {
-                if(validateJSON(event.target.result) == "Valid JSON") {
+                if(validateJSON(event.target.result)) {
                     contents = JSON.parse(event.target.result);
                     resolve(contents);
                 } else {
-                    //alert(validateJSON(event.target.result));
-                    reject(contents);
+                    return reject(contents);
                 }
             };
 
@@ -178,19 +164,13 @@ define(['zepto'], function ($) {
         try {
             json = JSON.parse(jsonString);
         } catch (e) {
-            return "Malformed JSON or incorrect filetype";
+            return false;
         }
         if (json.openmct && Object.keys(json).length === 1) {
-            return "Valid JSON";
+            return true;
         } else {
-            return "JSON format not recognized by Open MCT";
+            return false;
         }
-    };
-
-    ImportAsJSONAction.prototype.displayValidateError = function (dialogService) {
-        dialogService.getUserInput(ERROR_FORM)
-            .then(function (result) {            
-            })
     };
 
     ImportAsJSONAction.appliesTo = function (context) {
