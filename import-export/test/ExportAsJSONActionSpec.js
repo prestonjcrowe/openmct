@@ -21,10 +21,10 @@
  *****************************************************************************/
 
 define(
-    ["../ImportJSONAction"],
-    function (ImportJSONAction) {
+    ["../ExportJSONAction"],
+    function (ExportJSONAction) {
 
-        describe("The importJSON control directive", function () {
+        describe("The export JSON action", function () {
 
         });
     }

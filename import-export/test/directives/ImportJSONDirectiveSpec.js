@@ -21,10 +21,10 @@
  *****************************************************************************/
 
 define(
-    ["../src/ImportJSONDirective"],
+    ["../src/directives/ImportJSONDirective"],
     function (ImportJSONDirective) {
 
-        describe("The importJSON control directive", function () {
+        describe("The import JSON directive", function () {
 
         });
     }

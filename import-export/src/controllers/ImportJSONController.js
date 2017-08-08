@@ -28,7 +28,7 @@ define(
          * Controller for the `importJSONbutton` control type. Provides
          * structure for a button (embedded via the template) which
          * opens a filepicker and validates that the chosen file is legal
-         * JSON and was exported by Open MCT.
+         * JSON exported by Open MCT.
          * @memberof platform/forms
          * @constructor
          * @param $scope the control's Angular scope
@@ -62,7 +62,6 @@ define(
                 this.$scope.validInput = state;
             }.bind(this);
 
-            // make sure to check IDs, file size
             fileInput = $(document.getElementById('file-input'));
             fileInput.value = '';
 
@@ -71,15 +70,8 @@ define(
                 if (this.files[0]) {
                     fileBody = read(this.files[0])
                         .then(function (result) {
-                            //if (validate(result) === 'Valid JSON') {
-                                setValid(true);
-                                setText(this.files[0].name);
-                            //} else {
-                                // alert(validate(result));
-                                // this.remove();
-                                // setValid(false);
-                                // setText('Select File');
-                            //}
+                            setValid(true);
+                            setText(this.files[0].name);
                         }.bind(this));
                 } else {
                     setValid(false);
@@ -104,36 +96,6 @@ define(
                 fileReader.readAsText(file);
             });
 
-        };
-
-        ImportJSONController.prototype.validateJSON = function (jsonString) {
-            var json;
-            try {
-                json = JSON.parse(jsonString);
-            } catch (e) {
-                return "Malformed JSON or incorrect filetype";
-                //return 'Malformed JSON file\n:c';
-            }
-            if (json.openmct && Object.keys(json).length === 1) {
-
-                return 'Valid JSON';
-            } else {
-                return "JSON format not recognized by Open MCT";
-                //return 'JSON configuration not recognized\n:c';
-            }
-        };
-
-        ImportJSONController.prototype.validKeys = function (tree) {
-            var valid = true;
-            var regEx =
-                /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
-
-            Object.keys(tree).forEach(function (key) {
-                if (!(key.length === 36 && key.match(regEx) || key === 'mine')) {
-                    valid = false;
-                }
-            });
-            return valid;
         };
 
         ImportJSONController.prototype.newInput  = function () {

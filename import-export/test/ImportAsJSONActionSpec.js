@@ -24,7 +24,7 @@ define(
     ["../ImportJSONAction"],
     function (ImportJSONAction) {
 
-        describe("The importJSON control directive", function () {
+        describe("The import JSON action", function () {
 
         });
     }
