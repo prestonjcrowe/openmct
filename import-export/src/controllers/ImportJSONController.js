@@ -45,9 +45,11 @@ define(
             var fileBody;
 
             // create input element if not already present
-            if (!document.getElementById('file-input')) {
-                fileInput = this.newInput();
+            if (document.getElementById('file-input')) {
+                document.getElementById('file-input').remove();
             }
+
+            fileInput = this.newInput();
 
             // could use _.bindAll() here?
             var read = function (file) {
@@ -55,15 +57,14 @@ define(
             }.bind(this);
 
             var setText = function (text) {
-                this.structure.text = text;
+                this.structure.text = text.length > 20 ?
+                    text.substr(0, 20) + "..." :
+                    text;
             }.bind(this);
 
             var setValid = function (state) {
                 this.$scope.validInput = state;
             }.bind(this);
-
-            fileInput = $(document.getElementById('file-input'));
-            fileInput.value = '';
 
             fileInput.change(function () {
                 fileInput.off('change');
@@ -76,6 +77,7 @@ define(
                 } else {
                     setValid(false);
                     setText('Select File');
+                    fileInput.value = '';
                 }
             });
 

@@ -56,15 +56,12 @@ define(['zepto'], function ($) {
                 this.readFile(input.files[0])
                     .then(function (result) {
                         this.beginImport(result['openmct']);
-                }.bind(this), function (result) {
-                    this.displayError();
-                }.bind(this))
+                        input.remove();
+                    }.bind(this), function (err) {
+                        this.displayError();
+                    }.bind(this))
             }.bind(this));
-
         this.resetButton(IMPORT_FORM);
-        if (input) {
-            input.remove();
-        }
     };
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
@@ -191,6 +188,7 @@ define(['zepto'], function ($) {
             ]
         };
         dialog = this.dialogService.showBlockingMessage(model);
+        $(document.getElementById('file-input').remove());
     };
 
     ImportAsJSONAction.appliesTo = function (context) {
