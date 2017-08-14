@@ -22,19 +22,19 @@
 
 define(
     [
-    	"../../src/actions/ExportAsJSONAction",
-    	"../DomainObjectFactory"
+        "../../src/actions/ExportAsJSONAction",
+        "../DomainObjectFactory"
     ],
     function (ExportAsJSONAction, domainObjectFactory) {
 
         describe("The export JSON action", function () {
 
             var context,
-                                        action,
-                                        exportService,
-                                        identifierService,
-                                        policyService,
-                                        mockType;
+                action,
+                exportService,
+                identifierService,
+                policyService,
+                mockType;
 
             beforeEach(function () {
                 exportService = jasmine.createSpyObj('exportService',
