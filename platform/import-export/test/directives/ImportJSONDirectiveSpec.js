@@ -21,11 +21,29 @@
  *****************************************************************************/
 
 define(
-    ["../ImportJSONAction"],
-    function (ImportJSONAction) {
+    ["../../src/directives/ImportJSONDirective"],
+    function (ImportJSONDirective) {
 
-        describe("The importJSON control directive", function () {
+        describe("The import JSON directive", function () {
 
+            var mockScope,
+                            importDirective;
+
+            beforeEach(function () {
+                importDirective = new ImportJSONDirective();
+                mockScope = jasmine.createSpyObj(
+                        '$scope',
+                        ['$watch']
+                    );
+            });
+
+            it("watches for file input and validates form", function () {
+
+            });
+
+            it("is restricted to attributes", function () {
+                expect(importDirective.restrict).toEqual("A");
+            });
         });
     }
 );
