@@ -22,7 +22,7 @@
 
 define(
     [
-    	"../../src/actions/ImportAsJSONAction",
+        "../../src/actions/ImportAsJSONAction",
         "../DomainObjectFactory",
         "zepto"
     ],
