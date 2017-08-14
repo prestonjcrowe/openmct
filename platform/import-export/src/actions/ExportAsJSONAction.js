@@ -19,15 +19,13 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
- 
-define([], function () {
-    'use strict';
 
-    function ExportAsJSONAction(exportService, policyService, 
-        identifierService, context) {
-         
-        this.root;
-        this.calls = 0; 
+define([], function () {
+
+    function ExportAsJSONAction(exportService, policyService, identifierService, context) {
+
+        this.root = {};
+        this.calls = 0;
         this.context = context;
         this.externalIdentifiers = [];
         this.exportService = exportService;
@@ -35,9 +33,9 @@ define([], function () {
         this.identifierService = identifierService;
     }
 
-    ExportAsJSONAction.prototype.perform = function() {
-        this.contructJSON(this.context.domainObject);
-    }; 
+    ExportAsJSONAction.prototype.perform = function () {
+        return this.contructJSON(this.context.domainObject);
+    };
 
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
         var tree = {};
@@ -47,9 +45,10 @@ define([], function () {
         // removed after tree is built and re-added with "root" wrapper
 
         this.write(tree, rootObject, [], function (result) {
-            this.exportService.exportJSON(result, 
+            this.exportService.exportJSON(result,
                 {filename: rootObject.getModel().name + '.json'});
         }.bind(this));
+        return tree;
     };
 
     ExportAsJSONAction.prototype.write = function (tree, parent, seen, callback) {
@@ -58,11 +57,11 @@ define([], function () {
         if (parent.hasCapability('composition')) {
             parent.useCapability('composition')
                 .then(function (children) {
-                    children.forEach(function (child, index) { 
+                    children.forEach(function (child, index) {
                         // Only export if object is creatable
                         if (this.isCreatable(child)) {
-                            // If object is a link to something absent from 
-                            // tree, generate new id and treat as new object      
+                            // If object is a link to something absent from
+                            // tree, generate new id and treat as new object
                             if (this.isExternal(child, parent, tree)) {
                                 this.rewriteLink(child, parent, tree);
                             } else {
@@ -80,7 +79,7 @@ define([], function () {
                     if (this.calls === 0) {
                         callback(this.wrap(tree));
                     }
-                }.bind(this))
+                }.bind(this));
         } else {
             this.calls--;
             if (this.calls === 0) {
@@ -129,18 +128,19 @@ define([], function () {
         // object because its composition may have been altered
         var rootEntry = {};
         rootEntry[this.root.getId()] = tree[this.root.getId()];
-        tree["root"] = rootEntry;
+        tree.root = rootEntry;
         delete tree[this.root.getId()];
         return {
             "openmct": tree
         };
-	};
+    };
 
     ExportAsJSONAction.prototype.isCreatable = function (domainObject) {
         return this.policyService.allow(
-            "creation", 
+            "creation",
             domainObject.getCapability("type")
         );
+
     };
 
     return ExportAsJSONAction;

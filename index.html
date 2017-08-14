@@ -32,13 +32,11 @@
 
         require([
             'openmct',
-            'import-export/bundle'
-        ], function (openmct) {
+            'platform/import-export/bundle'
+        ], function (openmct, ImportExportPlugin) {
             [
                 'example/eventGenerator',
-                'example/styleguide',
-                'import-export',
-                'example/notifications'
+                'example/styleguide'
             ].forEach(
                 openmct.legacyRegistry.enable.bind(openmct.legacyRegistry)
             );
@@ -48,6 +46,7 @@
             openmct.install(openmct.plugins.Generator());
             openmct.install(openmct.plugins.ExampleImagery());
             openmct.install(openmct.plugins.UTCTimeSystem());
+            openmct.install(ImportExportPlugin());
             openmct.install(openmct.plugins.Conductor({
                 menuOptions: [
                     {
