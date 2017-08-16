@@ -22,8 +22,15 @@
 
 define([], function () {
 
+    /**
+     * The ExportAsJSONAction is available from context menus and allows a user
+     * to export any creatable domain object as a JSON file.
+     *
+     * @implements {Action}
+     * @constructor
+     * @memberof platform/import-export
+     */
     function ExportAsJSONAction(exportService, policyService, identifierService, context) {
-
         this.root = {};
         this.calls = 0;
         this.context = context;
@@ -34,7 +41,7 @@ define([], function () {
     }
 
     ExportAsJSONAction.prototype.perform = function () {
-        return this.contructJSON(this.context.domainObject);
+        this.contructJSON(this.context.domainObject);
     };
 
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
@@ -48,9 +55,18 @@ define([], function () {
             this.exportService.exportJSON(result,
                 {filename: rootObject.getModel().name + '.json'});
         }.bind(this));
-        return tree;
     };
 
+    /**
+     * Traverses the object hierarchy and populates the tree object with models
+     * and identifiers.
+     *
+     * @private
+     * @param {Object} tree
+     * @param {Object} parent
+     * @param {string []} seen
+     * @param callback
+     */
     ExportAsJSONAction.prototype.write = function (tree, parent, seen, callback) {
 
         this.calls++;
@@ -88,8 +104,12 @@ define([], function () {
         }
     };
 
-    // Appends externally linked child to tree with new id and rewrites
-    // parent's composition in tree to contain this new object.
+    /**
+     * Exports an externally linked object as an entirely new object in the
+     * case where the original is not present in the exported tree.
+     *
+     * @private
+     */
     ExportAsJSONAction.prototype.rewriteLink = function (child, parent, tree) {
         this.externalIdentifiers.push(child.getId());
         var parentModel = parent.getModel();
@@ -109,8 +129,6 @@ define([], function () {
         return JSON.parse(jsonString);
     };
 
-    // Returns true if an object is a link to another domain object that does
-    // not exist in the exported tree.
     ExportAsJSONAction.prototype.isExternal = function (child, parent, tree) {
         if (child.getModel().location !== parent.getId() &&
             !Object.keys(tree).includes(child.getModel().location) &&
@@ -122,6 +140,12 @@ define([], function () {
         return false;
     };
 
+    /**
+     * Wraps root object for identification on reimport and wraps entire
+     * exported JSON construct for validation.
+     *
+     * @private
+     */
     ExportAsJSONAction.prototype.wrap = function (tree) {
         // Wrap root object for identification on import
         // Important to use current "tree" state of root

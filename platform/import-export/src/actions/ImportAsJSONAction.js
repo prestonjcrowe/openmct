@@ -40,6 +40,15 @@ define(['zepto'], function ($) {
         ]
     };
 
+    /**
+     * The ImportAsJSONAction is available from context menus and allows a user
+     * to import a previously exported domain object into any domain object
+     * that has the composition capability.
+     *
+     * @implements {Action}
+     * @constructor
+     * @memberof platform/import-export
+     */
     function ImportAsJSONAction(exportService, identifierService, dialogService, openmct, context) {
 
         this.openmct = openmct;
