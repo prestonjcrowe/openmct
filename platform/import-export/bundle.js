@@ -26,12 +26,14 @@ define([
     "./src/actions/ImportAsJSONAction",
     "./src/controllers/ImportJSONController",
     "./src/directives/ImportJSONDirective",
+    "./src/services/FileInputService",
     "text!./res/templates/controls/importJSONbutton.html"
 ], function (
     ExportAsJSONAction,
     ImportAsJSONAction,
     ImportJSONController,
     ImportJSONDirective,
+    FileInputService,
     importJSONtemplate
 ) {
 
@@ -85,9 +87,18 @@ define([
                             "key": "ImportJSONController",
                             "implementation": ImportJSONController,
                             "depends": [
-                                "$scope"
+                                "$scope",
+                                "fileInputService"
                             ]
                         }
+                    ],
+                    "components": [
+                        {
+                            "provides": "fileInputService",
+                            "type": "provider",
+                            "implementation": FileInputService
+                        }
+
                     ],
                     "directives": [
                         {
@@ -97,7 +108,6 @@ define([
                     ]
                 }
             });
-
             openmct.legacyRegistry.enable('platform/import-export');
         };
     };
