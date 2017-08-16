@@ -78,7 +78,7 @@ define([
                     ],
                     "controls": [
                         {
-                            "key": "import-json",
+                            "key": "importJSONbutton",
                             "template": importJSONtemplate
                         }
                     ],

@@ -62,9 +62,9 @@ define(
             });
 
             it("only applies to creatable objects", function () {
-                //expect(action.appliesTo(context)).toBe(true);
-                //mockType.hasFeature.andReturn(false);
-                //expect(action.appliesTo(context)).toBe(false);
+                // expect(action.appliesTo(context)).toBe(true);
+                // mockType.hasFeature.andReturn(false);
+                // expect(action.appliesTo(context)).toBe(false);
             });
 
             it("doesn't export non-editable objects in tree", function () {
@@ -72,7 +72,39 @@ define(
             });
 
             it("can export self-containing objects", function () {
+                var infiniteParentComposition =
+                    jasmine.createSpyObj('infiniteParentComposition', ['invoke', 'then']);
 
+                var infiniteChildComposition =
+                    jasmine.createSpyObj('infiniteParentComposition', ['invoke', 'then']);
+
+                var parent = domainObjectFactory({
+                    name: 'parent',
+                    model: { name: 'parent' },
+                    capabilities: {
+                        composition: infiniteParentComposition,
+                        type: mockType
+                    }
+                });
+                var child = domainObjectFactory({
+                    name: 'child',
+                    model: { name: 'child' },
+                    capabilities: {
+                        composition: infiniteChildComposition,
+                        type: mockType
+                    }
+                });
+
+                infiniteParentComposition.invoke.andReturn(Promise.resolve([child]));
+                infiniteChildComposition.invoke.andReturn(Promise.resolve([parent]));
+
+                context.domainObject = parent;
+                //expect(action.isCreatable(child)).toBe(true);
+                //console.log(JSON.stringify(action.perform()));
+                //expect(parent.useCapability.calls.length).toEqual(2);
+                //expect(child.useCapability.calls.length).toEqual(2);
+
+                //isCreatable(child) returns false... need to mock type capability here
             });
 
             it("exports links to external objects as new objects", function () {

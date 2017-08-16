@@ -79,10 +79,10 @@ define(
             it("only applies to objects with composition capability", function () {
                 var compDomainObject = domainObjectFactory({
                     name: 'compObject',
-                    model: { name: 'compObject', composition: [] },
+                    model: { name: 'compObject'},
                     capabilities: {"composition": compositionCapability}
                 });
-                var noCompDomainObject = domainObjectFactory({});
+                var noCompDomainObject = domainObjectFactory();
 
                 context.domainObject = compDomainObject;
                 expect(ImportAsJSONAction.appliesTo(context)).toBe(true);
@@ -97,7 +97,8 @@ define(
             });
 
             it("can import self-containing objects", function () {
-
+                // getUserInput.andReturn({"imported-file": jsonToTest })...
+                // use previously exported JSON
             });
 
             it("assigns new ids to each imported object", function () {

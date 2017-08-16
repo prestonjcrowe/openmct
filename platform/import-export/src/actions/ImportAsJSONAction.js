@@ -24,20 +24,23 @@ define(['zepto'], function ($) {
 
     var IMPORT_FORM = {
         name: "Import as JSON",
-        sections: [{
-            name: "Import A File",
-            rows: [{
-                name: 'Select File',
-                key: 'select',
-                control: 'import-json',
-                required: true,
-                text: 'Select File'
-            }]
-        }]
+        sections: [
+            {
+                name: "Import A File",
+                rows: [
+                    {
+                        name: 'Select File',
+                        key: 'selectFile',
+                        control: 'importJSONbutton',
+                        required: true,
+                        text: 'Select File'
+                    }
+                ]
+            }
+        ]
     };
 
-    function ImportAsJSONAction(exportService, identifierService,
-        dialogService, openmct, context) {
+    function ImportAsJSONAction(exportService, identifierService, dialogService, openmct, context) {
 
         this.openmct = openmct;
         this.context = context;
@@ -48,20 +51,17 @@ define(['zepto'], function ($) {
     }
 
     ImportAsJSONAction.prototype.perform = function () {
-        var input;
-        this.dialogService.getUserInput(IMPORT_FORM, {"import-json": ""})
-            .then(function (formState) {
-                console.log("form: " + JSON.stringify(formState))
-                input = document.getElementById("file-input");
-                this.readFile(input.files[0])
-                    .then(function (result) {
-                        this.beginImport(result.openmct);
-                        input.remove();
-                    }.bind(this), function (err) {
-                        this.displayError();
-                    }.bind(this));
+        var importedFile;
+        this.dialogService.getUserInput(IMPORT_FORM, {})
+            .then(function (state) {
+                this.resetButton(IMPORT_FORM);
+                if (this.validateJSON(state.selectFile.body)) {
+                    importedFile = JSON.parse(state.selectFile.body);
+                    this.beginImport(importedFile.openmct);
+                } else {
+                    this.displayError();
+                }
             }.bind(this));
-        this.resetButton(IMPORT_FORM);
     };
 
     ImportAsJSONAction.prototype.beginImport = function (file) {
@@ -137,28 +137,6 @@ define(['zepto'], function ($) {
         dialogModel.sections[0].rows[0].text = "Select File";
     };
 
-    ImportAsJSONAction.prototype.readFile = function (file) {
-        var contents = '';
-        var fileReader = new FileReader();
-        var validateJSON = this.validateJSON;
-
-        return new Promise(function (resolve, reject) {
-            fileReader.onload = function (event) {
-                if (validateJSON(event.target.result)) {
-                    contents = JSON.parse(event.target.result);
-                    resolve(contents);
-                } else {
-                    return reject(contents);
-                }
-            };
-
-            fileReader.onerror = function () {
-                return reject(contents);
-            };
-            fileReader.readAsText(file);
-        });
-    };
-
     ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
         var json;
         try {
@@ -166,11 +144,10 @@ define(['zepto'], function ($) {
         } catch (e) {
             return false;
         }
-        if (json.openmct && Object.keys(json).length === 1) {
-            return true;
-        } else {
+        if (!json.openmct || Object.keys(json).length !== 1) {
             return false;
         }
+        return true;
     };
 
     ImportAsJSONAction.prototype.displayError = function () {
@@ -190,7 +167,6 @@ define(['zepto'], function ($) {
             ]
         };
         dialog = this.dialogService.showBlockingMessage(model);
-        $(document.getElementById('file-input').remove());
     };
 
     ImportAsJSONAction.appliesTo = function (context) {
