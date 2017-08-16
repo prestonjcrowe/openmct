@@ -40,7 +40,7 @@ define(
             this.fileInputService = fileInputService;
         }
         // fired on 'Select File' button click
-        ImportJSONController.prototype.chooseFile = function () {
+        ImportJSONController.prototype.selectFile = function () {
             var setModel = function (fileObj) {
                 this.$scope.ngModel[this.$scope.field] = fileObj;
             }.bind(this);

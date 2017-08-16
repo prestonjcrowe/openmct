@@ -24,7 +24,7 @@
    ng-model="ngModel[field]"
    ng-class="{ labeled: structure.text }"
    ng-controller="ImportJSONController as importController"
-   ng-click="importController.chooseFile()"
+   ng-click="importController.selectFile()"
    import-directive>
     <span class="title-label" ng-if="structure.text">
         {{structure.text}}
