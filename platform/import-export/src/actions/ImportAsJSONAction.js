@@ -28,7 +28,7 @@ define(['zepto'], function ($) {
             name: "Import A File",
             rows: [{
                 name: 'Select File',
-                key: 'select-file',
+                key: 'select',
                 control: 'import-json',
                 required: true,
                 text: 'Select File'
@@ -49,8 +49,9 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.perform = function () {
         var input;
-        this.dialogService.getUserInput(IMPORT_FORM, {})
-            .then(function () {
+        this.dialogService.getUserInput(IMPORT_FORM, {"import-json": ""})
+            .then(function (formState) {
+                console.log("form: " + JSON.stringify(formState))
                 input = document.getElementById("file-input");
                 this.readFile(input.files[0])
                     .then(function (result) {

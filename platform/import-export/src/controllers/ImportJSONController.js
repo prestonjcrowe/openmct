@@ -33,29 +33,14 @@ define(
          * @constructor
          * @param $scope the control's Angular scope
          */
-        function ImportJSONController($scope) {
+        function ImportJSONController($scope, fileInputService) {
             this.$scope = $scope;
             this.$scope.validInput = false;
             this.structure = $scope.structure;
+            this.fileInputService = fileInputService;
         }
-
         // fired on 'Select File' button click
-        ImportJSONController.prototype.selectFile = function () {
-            var fileInput;
-            var fileBody;
-
-            // create input element if not already present
-            if (document.getElementById('file-input')) {
-                document.getElementById('file-input').remove();
-            }
-
-            fileInput = this.newInput();
-
-            // could use _.bindAll() here?
-            var read = function (file) {
-                return this.readFile(file);
-            }.bind(this);
-
+        ImportJSONController.prototype.chooseFile = function () {
             var setText = function (text) {
                 this.structure.text = text.length > 20 ?
                     text.substr(0, 20) + "..." :
@@ -66,22 +51,13 @@ define(
                 this.$scope.validInput = state;
             }.bind(this);
 
-            fileInput.change(function () {
-                fileInput.off('change');
-                if (this.files[0]) {
-                    fileBody = read(this.files[0])
-                        .then(function (result) {
-                            setValid(true);
-                            setText(this.files[0].name);
-                        }.bind(this));
-                } else {
-                    setValid(false);
-                    setText('Select File');
-                    fileInput.value = '';
-                }
+            this.fileInputService.getInput().then(function (result) {
+                setText(result.name);
+                setValid(true);
+            }, function () {
+                setText('Select File');
+                setValid(false);
             });
-
-            fileInput.trigger('click');
         };
 
         ImportJSONController.prototype.readFile = function (file) {
