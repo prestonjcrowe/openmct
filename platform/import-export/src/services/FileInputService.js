@@ -20,11 +20,10 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    function () {
+define(["zepto"], function ($) {
 
     function FileInputService() {
-         console.log("FILE INPUT SERVICE INIT");
+
     }
 
     FileInputService.prototype.getInput = function () {
@@ -36,22 +35,19 @@ define(
         return new Promise(function (resolve, reject) {
             input.trigger("click");
             input.change(function (event) {
-                console.log("file selected, processing");
                 file = this.files[0];
                 if (file) {
-                    fileBody = read(file)
+                    read(file)
                         .then(function (contents) {
                             fileInfo.name = file.name;
                             fileInfo.body = contents;
                             input.remove();
-                            console.log(fileInfo)
                             resolve(fileInfo);
-                        })
+                        });
                 } else {
                     input.remove();
-                    console.log("file picker canceled")
                     reject("No file chosen");
-                }    
+                }
             });
         });
     };
@@ -61,12 +57,10 @@ define(
 
         return new Promise(function (resolve, reject) {
             fileReader.onload = function (event) {
-                console.log("EVERYTHINGS OK")
                 resolve(event.target.result);
             };
 
             fileReader.onerror = function () {
-                console.log("SOMETHINGS WRONG")
                 return reject(event.target.result);
             };
             fileReader.readAsText(file);
@@ -76,12 +70,11 @@ define(
     FileInputService.prototype.newInput  = function () {
         var input = $(document.createElement('input'));
         input.attr("type", "file");
-        input.attr("id", "file-input"); 
+        input.attr("id", "file-input");
         input.css("display", "none");
         $('body').append(input);
         return input;
     };
 
-     return FileInputService;
- 	}
- );
+    return FileInputService;
+});

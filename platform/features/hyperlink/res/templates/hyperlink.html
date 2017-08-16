@@ -19,25 +19,10 @@
  this source code distribution or the Licensing information page available
  at runtime from the About dialog for additional information.
 -->
-<div class="frame frame-template t-frame-inner abs t-object-type-{{ representation.selected.key }}">
-    <div class="abs object-browse-bar l-flex-row">
-        <div class="left flex-elem l-flex-row grows">
-            <mct-representation
-                    key="'object-header'"
-                    mct-object="domainObject"
-                    class="l-flex-row flex-elem object-header grows">
-            </mct-representation>
-        </div>
-        <div class="btn-bar right l-flex-row flex-elem flex-justify-end flex-fixed">
-            <mct-representation key="'switcher'"
-                                ng-model="representation"
-                                mct-object="domainObject">
-            </mct-representation>
-        </div>
-    </div>
-    <div class="abs object-holder">
-        <mct-representation key="representation.selected.key"
-                            mct-object="representation.selected.key && domainObject">
-        </mct-representation>
-    </div>
-</div>
+<a class="s-hyperlink" ng-controller="HyperlinkController as hyperlink" href="{{domainObject.getModel().url}}"
+   ng-attr-target="{{hyperlink.openNewTab() ? '_blank' : undefined}}"
+   ng-class="{
+       's-button': hyperlink.isButton()
+   }">
+    <div class="label">{{domainObject.getModel().displayText}}</div>
+</a>

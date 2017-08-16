@@ -41,6 +41,9 @@ define(
         }
         // fired on 'Select File' button click
         ImportJSONController.prototype.chooseFile = function () {
+            var setModel = function (fileObj) {
+                this.$scope.ngModel[this.$scope.field] = fileObj;
+            }.bind(this);
             var setText = function (text) {
                 this.structure.text = text.length > 20 ?
                     text.substr(0, 20) + "..." :
@@ -52,6 +55,7 @@ define(
             }.bind(this);
 
             this.fileInputService.getInput().then(function (result) {
+                setModel(result);
                 setText(result.name);
                 setValid(true);
             }, function () {
