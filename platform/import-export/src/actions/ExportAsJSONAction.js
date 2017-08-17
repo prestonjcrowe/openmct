@@ -147,7 +147,6 @@ define([], function () {
      * @private
      */
     ExportAsJSONAction.prototype.wrap = function (tree) {
-        // Wrap root object for identification on import
         // Important to use current "tree" state of root
         // object because its composition may have been altered
         var rootEntry = {};

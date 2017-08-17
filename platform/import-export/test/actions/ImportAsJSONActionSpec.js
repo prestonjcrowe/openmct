@@ -91,9 +91,10 @@ define(
             });
 
             it("displays error dialog on invalid file choice", function () {
+                dialogService.getUserInput.andReturn(Promise.resolve({openmct : {}}));
                 action.perform();
                 expect(dialogService.getUserInput).toHaveBeenCalled();
-                //expect(dialogService.showBlockingMessage).toHaveBeenCalled();
+                //expect(dialogService.showBlockingMessage).toHaveBeenCalled(); //???
             });
 
             it("can import self-containing objects", function () {

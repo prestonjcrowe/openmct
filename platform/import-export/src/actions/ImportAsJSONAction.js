@@ -96,9 +96,9 @@ define(['zepto'], function ($) {
         parent.getCapability("composition").add(rootObj);
     };
 
-    // Traverses object tree, instantiates all domain object w/ new IDs and
-    //adds to parent's composition
     ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree, seen) {
+        // Traverses object tree, instantiates all domain object w/ new IDs and
+        // adds to parent's composition
         if (parent.hasCapability("composition")) {
             var parentModel = parent.getModel();
             var newObj;
@@ -118,8 +118,8 @@ define(['zepto'], function ($) {
         }
     };
 
-    // For each domain object in the file, generate new ID, replace in JSON
     ImportAsJSONAction.prototype.generateNewTree = function (tree) {
+        // For each domain object in the file, generate new ID, replace in tree
         Object.keys(tree).forEach(function (domainObjectId) {
             if (domainObjectId === "root") {
                 domainObjectId = Object.keys(tree.root)[0];
@@ -131,12 +131,19 @@ define(['zepto'], function ($) {
     };
 
     ImportAsJSONAction.prototype.flattenTree = function (tree, rootId) {
+        // Removes 'root' wrapper
         var rootModel = tree.root[rootId];
         tree[rootId] = rootModel;
         delete tree.root;
         return tree;
     };
 
+    /**
+     * Rewrites all instances of a given id in the tree with a newly generated
+     * replacement to prevent collision.
+     *
+     * @private
+     */
     ImportAsJSONAction.prototype.rewriteId = function (oldID, newID, tree) {
         tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
         return JSON.parse(tree);

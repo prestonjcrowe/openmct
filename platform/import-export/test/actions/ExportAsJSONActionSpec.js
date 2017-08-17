@@ -97,7 +97,6 @@ define(
 
                 infiniteParentComposition.invoke.andReturn(Promise.resolve([child]));
                 infiniteChildComposition.invoke.andReturn(Promise.resolve([parent]));
-
                 context.domainObject = parent;
                 //expect(action.isCreatable(child)).toBe(true);
                 //console.log(JSON.stringify(action.perform()));
