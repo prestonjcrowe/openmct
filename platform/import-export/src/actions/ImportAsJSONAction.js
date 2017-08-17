@@ -162,9 +162,9 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.displayError = function () {
         var dialog,
         model = {
-            title: "Invalid File Choice",
-            actionText: "File was either malformed or not exported by " +
-                "Open MCT. Please try another JSON file.",
+            title: "Invalid File",
+            actionText:  "The selected file was either invalid JSON or was " +
+                "not formatted properly for import into Open MCT.",
             severity: "error",
             options: [
                 {
