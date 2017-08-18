@@ -51,7 +51,7 @@ define([
                 "extensions": {
                     "actions": [
                         {
-                            "key": "example.export.JSON",
+                            "key": "export.JSON",
                             "name": "Export as JSON",
                             "implementation": ExportAsJSONAction,
                             "category": "contextual",
@@ -63,7 +63,7 @@ define([
                             ]
                         },
                         {
-                            "key": "example.import.JSON",
+                            "key": "import.JSON",
                             "name": "Import from JSON",
                             "implementation": ImportAsJSONAction,
                             "category": "contextual",

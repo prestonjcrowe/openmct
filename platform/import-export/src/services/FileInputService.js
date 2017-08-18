@@ -32,6 +32,12 @@ define(["zepto"], function ($) {
 
     }
 
+    /**
+     * Creates, triggers, and destroys a file picker element and returns a
+     * promise for an object containing the chosen file's name and contents.
+     *
+     * @returns {Promise} promise for an object containing file meta-data
+     */
     FileInputService.prototype.getInput = function () {
         var input = this.newInput();
         var read = this.readFile;
@@ -40,19 +46,18 @@ define(["zepto"], function ($) {
 
         return new Promise(function (resolve, reject) {
             input.trigger("click");
-            input.change(function (event) {
+            input.on('change', function (event) {
                 file = this.files[0];
+                input.remove();
                 if (file) {
                     read(file)
                         .then(function (contents) {
                             fileInfo.name = file.name;
                             fileInfo.body = contents;
-                            input.remove();
                             resolve(fileInfo);
+                        }, function () {
+                            reject("File read error");
                         });
-                } else {
-                    input.remove();
-                    reject("No file chosen");
                 }
             });
         });

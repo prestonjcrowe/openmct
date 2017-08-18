@@ -23,7 +23,7 @@
 define(
     [
         "../../src/actions/ExportAsJSONAction",
-        "../DomainObjectFactory"
+        "../../../entanglement/test/DomainObjectFactory"
     ],
     function (ExportAsJSONAction, domainObjectFactory) {
 
@@ -62,6 +62,8 @@ define(
             });
 
             it("only applies to creatable objects", function () {
+                // appliesTo not defined here, need to test bundle separately?
+
                 // expect(action.appliesTo(context)).toBe(true);
                 // mockType.hasFeature.andReturn(false);
                 // expect(action.appliesTo(context)).toBe(false);
@@ -73,10 +75,10 @@ define(
 
             it("can export self-containing objects", function () {
                 var infiniteParentComposition =
-                    jasmine.createSpyObj('infiniteParentComposition', ['invoke', 'then']);
+                    jasmine.createSpyObj('infiniteParentComposition', ['invoke']);
 
                 var infiniteChildComposition =
-                    jasmine.createSpyObj('infiniteParentComposition', ['invoke', 'then']);
+                    jasmine.createSpyObj('infiniteParentComposition', ['invoke']);
 
                 var parent = domainObjectFactory({
                     name: 'parent',
@@ -98,10 +100,11 @@ define(
                 infiniteParentComposition.invoke.andReturn(Promise.resolve([child]));
                 infiniteChildComposition.invoke.andReturn(Promise.resolve([parent]));
                 context.domainObject = parent;
+
                 //expect(action.isCreatable(child)).toBe(true);
                 //console.log(JSON.stringify(action.perform()));
-                //expect(parent.useCapability.calls.length).toEqual(2);
-                //expect(child.useCapability.calls.length).toEqual(2);
+                //expect(parent.useCapability.calls.length).toEqual(1);
+                //expect(child.useCapability.calls.length).toEqual(1);
 
                 //isCreatable(child) returns false... need to mock type capability here
             });

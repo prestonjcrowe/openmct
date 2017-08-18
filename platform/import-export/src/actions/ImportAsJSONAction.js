@@ -60,13 +60,13 @@ define(['zepto'], function ($) {
     }
 
     ImportAsJSONAction.prototype.perform = function () {
-        var importedFile;
+        var importedTree;
         this.dialogService.getUserInput(IMPORT_FORM, {})
             .then(function (state) {
                 this.resetButton(IMPORT_FORM);
                 if (this.validateJSON(state.selectFile.body)) {
-                    importedFile = JSON.parse(state.selectFile.body);
-                    this.beginImport(importedFile.openmct);
+                    importedTree = JSON.parse(state.selectFile.body);
+                    this.beginImport(importedTree.openmct);
                 } else {
                     this.displayError();
                 }

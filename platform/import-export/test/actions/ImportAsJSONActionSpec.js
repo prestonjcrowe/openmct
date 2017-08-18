@@ -23,7 +23,7 @@
 define(
     [
         "../../src/actions/ImportAsJSONAction",
-        "../DomainObjectFactory",
+        "../../../entanglement/test/DomainObjectFactory",
         "zepto"
     ],
     function (ImportAsJSONAction, domainObjectFactory, $) {
@@ -91,15 +91,15 @@ define(
             });
 
             it("displays error dialog on invalid file choice", function () {
-                dialogService.getUserInput.andReturn(Promise.resolve({openmct : {}}));
                 action.perform();
                 expect(dialogService.getUserInput).toHaveBeenCalled();
-                //expect(dialogService.showBlockingMessage).toHaveBeenCalled(); //???
+                // expect(dialogService.showBlockingMessage).toHaveBeenCalled();
+                // seems that getUserInput.then()... doesn't execute entirely?
             });
 
             it("can import self-containing objects", function () {
                 // getUserInput.andReturn({"imported-file": jsonToTest })...
-                // use previously exported JSON
+                // use previously exported JSON to test
             });
 
             it("assigns new ids to each imported object", function () {
