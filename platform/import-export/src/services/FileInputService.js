@@ -81,7 +81,6 @@ define(["zepto"], function ($) {
     FileInputService.prototype.newInput  = function () {
         var input = $(document.createElement('input'));
         input.attr("type", "file");
-        input.attr("id", "file-input");
         input.css("display", "none");
         $('body').append(input);
         return input;

@@ -22,24 +22,6 @@
 
 define(['zepto'], function ($) {
 
-    var IMPORT_FORM = {
-        name: "Import as JSON",
-        sections: [
-            {
-                name: "Import A File",
-                rows: [
-                    {
-                        name: 'Select File',
-                        key: 'selectFile',
-                        control: 'file-input',
-                        required: true,
-                        text: 'Select File'
-                    }
-                ]
-            }
-        ]
-    };
-
     /**
      * The ImportAsJSONAction is available from context menus and allows a user
      * to import a previously exported domain object into any domain object
@@ -66,41 +48,31 @@ define(['zepto'], function ($) {
     }
 
     ImportAsJSONAction.prototype.perform = function () {
-        var importedTree;
-        this.dialogService.getUserInput(IMPORT_FORM, {})
+        this.dialogService.getUserInput(this.getFormModel(), {})
             .then(function (state) {
-                this.resetButton(IMPORT_FORM);
                 if (this.validateJSON(state.selectFile.body)) {
-                    importedTree = JSON.parse(state.selectFile.body);
-                    this.beginImport(importedTree.openmct);
+                    var importedTree = JSON.parse(state.selectFile.body);
+                    this.importObjectTree(importedTree.openmct);
                 } else {
                     this.displayError();
                 }
-            }.bind(this), function () {
-                this.resetButton(IMPORT_FORM);
             }.bind(this));
     };
 
-    ImportAsJSONAction.prototype.beginImport = function (file) {
+    ImportAsJSONAction.prototype.importObjectTree = function (file) {
         var parent = this.context.domainObject;
 
-        // Generate tree with newly created ids
-        var tree = this.generateNewTree(file);
+        var tree = this.generateNewIdentifiers(file);
 
         // Instantiate root object w/ its new id
         var rootId = Object.keys(tree.root)[0];
         var rootObj = this.instantiate(tree.root[rootId], rootId);
         rootObj.getCapability("location").setPrimaryLocation(parent.getId());
-
-        // Remove wrapper from root after getting a handle on the root object
-        // and generating new ids
-        tree = this.flattenTree(tree, rootId);
+        tree = this.unwrapRoot(tree, rootId);
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
         this.deepInstantiate(rootObj, tree, []);
-
-        // Add root object to the composition of the parent
         parent.getCapability("composition").add(rootObj);
     };
 
@@ -126,7 +98,7 @@ define(['zepto'], function ($) {
         }
     };
 
-    ImportAsJSONAction.prototype.generateNewTree = function (tree) {
+    ImportAsJSONAction.prototype.generateNewIdentifiers = function (tree) {
         // For each domain object in the file, generate new ID, replace in tree
         Object.keys(tree).forEach(function (domainObjectId) {
             if (domainObjectId === "root") {
@@ -138,8 +110,7 @@ define(['zepto'], function ($) {
         return tree;
     };
 
-    ImportAsJSONAction.prototype.flattenTree = function (tree, rootId) {
-        // Removes 'root' wrapper
+    ImportAsJSONAction.prototype.unwrapRoot = function (tree, rootId) {
         var rootModel = tree.root[rootId];
         tree[rootId] = rootModel;
         delete tree.root;
@@ -157,8 +128,24 @@ define(['zepto'], function ($) {
         return JSON.parse(tree);
     };
 
-    ImportAsJSONAction.prototype.resetButton = function (dialogModel) {
-        dialogModel.sections[0].rows[0].text = "Select File";
+    ImportAsJSONAction.prototype.getFormModel = function () {
+        return {
+            name: "Import as JSON",
+            sections: [
+                {
+                    name: "Import A File",
+                    rows: [
+                        {
+                            name: 'Select File',
+                            key: 'selectFile',
+                            control: 'file-input',
+                            required: true,
+                            text: 'Select File'
+                        }
+                    ]
+                }
+            ]
+        };
     };
 
     ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
