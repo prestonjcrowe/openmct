@@ -21,33 +21,24 @@
  *****************************************************************************/
 
 define(
-    ["../../src/directives/MCTFileInput"],
-    function (MCTFileInput) {
+    ["../../src/services/FileInputService"],
+    function (FileInputService) {
 
-        describe("The mct-file-input directive", function () {
-
-            var mockScope,
-                mockFileInputService,
-                mctFileInput;
+        describe("The FileInputService", function () {
 
             beforeEach(function () {
-                mockFileInputService = jasmine.createSpyObj('fileInputService',
-                    ['getInput']
-                );
-                mockScope = jasmine.createSpyObj(
-                        '$scope',
-                        ['$watch']
-                );
 
-                mctFileInput = new MCTFileInput(mockFileInputService);
+                var fileInputService;
+
+                fileInputService = new FileInputService();
             });
 
-            it("watches for file input and validates form", function () {
+            it("can read a file", function () {
 
             });
 
-            it("is restricted to attributes", function () {
-                expect(mctFileInput.restrict).toEqual("A");
+            it("catches file read errors", function () {
+
             });
         });
     }

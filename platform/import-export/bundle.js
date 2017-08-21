@@ -53,7 +53,7 @@ define([
                             "name": "Export as JSON",
                             "implementation": ExportAsJSONAction,
                             "category": "contextual",
-                            "cssClass": "icon-download",
+                            "cssClass": "icon-save",
                             "depends": [
                                 "exportService",
                                 "policyService",
