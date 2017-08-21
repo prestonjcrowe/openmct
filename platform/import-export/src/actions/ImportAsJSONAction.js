@@ -70,6 +70,8 @@ define(['zepto'], function ($) {
                 } else {
                     this.displayError();
                 }
+            }.bind(this), function () {
+                this.resetButton(IMPORT_FORM);
             }.bind(this));
     };
 

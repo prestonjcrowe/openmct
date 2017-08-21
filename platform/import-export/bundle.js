@@ -24,14 +24,12 @@
 define([
     "./src/actions/ExportAsJSONAction",
     "./src/actions/ImportAsJSONAction",
-    "./src/controllers/ImportJSONController",
     "./src/directives/ImportJSONDirective",
     "./src/services/FileInputService",
     "text!./res/templates/controls/importJSONbutton.html"
 ], function (
     ExportAsJSONAction,
     ImportAsJSONAction,
-    ImportJSONController,
     ImportJSONDirective,
     FileInputService,
     importJSONtemplate
@@ -82,16 +80,6 @@ define([
                             "template": importJSONtemplate
                         }
                     ],
-                    "controllers": [
-                        {
-                            "key": "ImportJSONController",
-                            "implementation": ImportJSONController,
-                            "depends": [
-                                "$scope",
-                                "fileInputService"
-                            ]
-                        }
-                    ],
                     "components": [
                         {
                             "provides": "fileInputService",
@@ -103,7 +91,10 @@ define([
                     "directives": [
                         {
                             "key": "importDirective",
-                            "implementation": ImportJSONDirective
+                            "implementation": ImportJSONDirective,
+                            "depends": [
+                                "fileInputService"
+                            ]
                         }
                     ]
                 }

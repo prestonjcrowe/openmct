@@ -21,12 +21,32 @@
  *****************************************************************************/
 
 define(
-    [],
-    function () {
+    ['zepto'],
+    function ($) {
 
-        function ImportJSONDirective() {
+        function ImportJSONDirective(fileInputService) {
+
             function link(scope, element, attrs, control) {
+
+                function setText(fileName) {
+                    scope.structure.text = fileName.length > 20 ?
+                    fileName.substr(0, 20) + "..." :
+                    fileName;
+                }
+
+                function handleClick() {
+                    fileInputService.getInput().then(function (result) {
+                        setText(result.name);
+                        scope.ngModel[scope.field] = result;
+                        scope.validInput = true;
+                    }, function () {
+                        setText('Select File');
+                        scope.validInput = false;
+                    });
+                }
+
                 control.$setValidity("importJSONbutton", false);
+                element.on('click', handleClick);
                 scope.$watch('validInput', function (newValue, oldValue) {
                     control.$setValidity("importJSONbutton", newValue);
                 });
