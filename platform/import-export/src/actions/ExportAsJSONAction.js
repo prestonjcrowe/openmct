@@ -30,7 +30,13 @@ define([], function () {
      * @constructor
      * @memberof platform/import-export
      */
-    function ExportAsJSONAction(exportService, policyService, identifierService, context) {
+    function ExportAsJSONAction(
+        exportService,
+        policyService,
+        identifierService,
+        context
+    ) {
+
         this.root = {};
         this.calls = 0;
         this.context = context;

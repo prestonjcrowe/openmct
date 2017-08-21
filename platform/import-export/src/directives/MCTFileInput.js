@@ -24,7 +24,7 @@ define(
     ['zepto'],
     function ($) {
 
-        function ImportJSONDirective(fileInputService) {
+        function MCTFileInput(fileInputService) {
 
             function link(scope, element, attrs, control) {
 
@@ -45,10 +45,10 @@ define(
                     });
                 }
 
-                control.$setValidity("importJSONbutton", false);
+                control.$setValidity("file-input", false);
                 element.on('click', handleClick);
                 scope.$watch('validInput', function (newValue, oldValue) {
-                    control.$setValidity("importJSONbutton", newValue);
+                    control.$setValidity("file-input", newValue);
                 });
             }
 
@@ -59,7 +59,7 @@ define(
             };
         }
 
-        return ImportJSONDirective;
+        return MCTFileInput;
 
     }
 );

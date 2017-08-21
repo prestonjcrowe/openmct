@@ -24,15 +24,15 @@
 define([
     "./src/actions/ExportAsJSONAction",
     "./src/actions/ImportAsJSONAction",
-    "./src/directives/ImportJSONDirective",
+    "./src/directives/MCTFileInput",
     "./src/services/FileInputService",
-    "text!./res/templates/controls/importJSONbutton.html"
+    "text!./res/templates/controls/file-input.html"
 ], function (
     ExportAsJSONAction,
     ImportAsJSONAction,
-    ImportJSONDirective,
+    MCTFileInput,
     FileInputService,
-    importJSONtemplate
+    fileInputTemplate
 ) {
 
     return function ImportExportPlugin() {
@@ -76,8 +76,8 @@ define([
                     ],
                     "controls": [
                         {
-                            "key": "importJSONbutton",
-                            "template": importJSONtemplate
+                            "key": "file-input",
+                            "template": fileInputTemplate
                         }
                     ],
                     "components": [
@@ -90,8 +90,8 @@ define([
                     ],
                     "directives": [
                         {
-                            "key": "importDirective",
-                            "implementation": ImportJSONDirective,
+                            "key": "mctFileInput",
+                            "implementation": MCTFileInput,
                             "depends": [
                                 "fileInputService"
                             ]

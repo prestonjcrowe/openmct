@@ -21,20 +21,25 @@
  *****************************************************************************/
 
 define(
-    ["../../src/directives/ImportJSONDirective"],
-    function (ImportJSONDirective) {
+    ["../../src/directives/MCTFileInput"],
+    function (MCTFileInput) {
 
-        describe("The import JSON directive", function () {
+        describe("The MCTFileInput directive", function () {
 
             var mockScope,
-                            importDirective;
+                mockFileInputService,
+                mctFileInput;
 
             beforeEach(function () {
-                importDirective = new ImportJSONDirective();
+                mockFileInputService = jasmine.createSpyObj('fileInputService',
+                    ['getInput']
+                );
                 mockScope = jasmine.createSpyObj(
                         '$scope',
                         ['$watch']
-                    );
+                );
+
+                mctFileInput = new MCTFileInput(mockFileInputService);
             });
 
             it("watches for file input and validates form", function () {
@@ -42,7 +47,7 @@ define(
             });
 
             it("is restricted to attributes", function () {
-                expect(importDirective.restrict).toEqual("A");
+                expect(mctFileInput.restrict).toEqual("A");
             });
         });
     }

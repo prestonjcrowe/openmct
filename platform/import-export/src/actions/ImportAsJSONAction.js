@@ -31,7 +31,7 @@ define(['zepto'], function ($) {
                     {
                         name: 'Select File',
                         key: 'selectFile',
-                        control: 'importJSONbutton',
+                        control: 'file-input',
                         required: true,
                         text: 'Select File'
                     }
@@ -49,7 +49,13 @@ define(['zepto'], function ($) {
      * @constructor
      * @memberof platform/import-export
      */
-    function ImportAsJSONAction(exportService, identifierService, dialogService, openmct, context) {
+    function ImportAsJSONAction(
+        exportService,
+        identifierService,
+        dialogService,
+        openmct,
+        context
+    ) {
 
         this.openmct = openmct;
         this.context = context;
