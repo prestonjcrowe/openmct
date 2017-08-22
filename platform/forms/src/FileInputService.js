@@ -26,7 +26,7 @@ define(["zepto"], function ($) {
      * The FileInputService provides an interface for triggering a file input.
      *
      * @constructor
-     * @memberof platform/import-export
+     * @memberof platform/forms
      */
     function FileInputService() {
 

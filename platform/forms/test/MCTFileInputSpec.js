@@ -21,7 +21,7 @@
  *****************************************************************************/
 
 define(
-    ["../../src/directives/MCTFileInput"],
+    ["../src/MCTFileInput"],
     function (MCTFileInput) {
 
         describe("The mct-file-input directive", function () {

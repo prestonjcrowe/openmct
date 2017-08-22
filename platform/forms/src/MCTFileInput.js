@@ -24,6 +24,12 @@ define(
     ['zepto'],
     function ($) {
 
+        /**
+         * The mct-file-input utilizes the FileInputService to provide behavior
+         * for the file input form control.
+         * @constructor
+         * @memberof platform/forms
+         */
         function MCTFileInput(fileInputService) {
 
             function link(scope, element, attrs, control) {
@@ -60,6 +66,5 @@ define(
         }
 
         return MCTFileInput;
-
     }
 );

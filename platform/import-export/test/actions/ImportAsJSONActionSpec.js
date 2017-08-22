@@ -98,6 +98,8 @@ define(
                 // seems that getUserInput.then()... doesn't execute entirely?
                 // something's undefined here causing test to stop early, will
                 // investigate
+                // DEFINITELY has to do with mock object declarations, missing
+                // location etc. will revisit
             });
 
             it("can import self-containing objects", function () {

@@ -57,7 +57,10 @@ define(
                         id: 'someID',
                         capabilities: {type: mockType}
                     });
-                policyService.allow.andReturn(true);
+
+                policyService.allow.andCallFake(function (capability, type) {
+                    return true;
+                });
 
                 action = new ExportAsJSONAction(exportService, policyService,
                         identifierService, context);
@@ -68,8 +71,7 @@ define(
             });
 
             it("only applies to creatable objects", function () {
-                // appliesTo not defined here, need to test bundle separately??
-
+                // need to test bundle separately, add spec for bundle.js
                 // expect(action.appliesTo(context)).toBe(true);
                 // mockType.hasFeature.andReturn(false);
                 // expect(action.appliesTo(context)).toBe(false);
@@ -88,7 +90,8 @@ define(
 
                 var parent = domainObjectFactory({
                     name: 'parent',
-                    model: { name: 'parent' },
+                    model: { name: 'parent', location: 'ROOT'},
+                    id: 'infiniteParent',
                     capabilities: {
                         composition: infiniteParentComposition,
                         type: mockType
@@ -96,22 +99,25 @@ define(
                 });
                 var child = domainObjectFactory({
                     name: 'child',
-                    model: { name: 'child' },
+                    model: { name: 'child', location: 'infiniteParent' },
+                    id: 'infiniteChild',
                     capabilities: {
                         composition: infiniteChildComposition,
                         type: mockType
                     }
                 });
 
-
-                infiniteParentComposition.invoke.andReturn(Promise.resolve([child]));
-                infiniteChildComposition.invoke.andReturn(Promise.resolve([parent]));
+                infiniteParentComposition.invoke.andReturn(
+                    Promise.resolve([child])
+                );
+                infiniteChildComposition.invoke.andReturn(
+                    Promise.resolve([parent])
+                );
                 context.domainObject = parent;
                 action.perform();
 
-                //expect(policyService.allow).toHaveBeenCalled();
-                //expect(parent.useCapability.calls.length).toEqual(1);
-                //expect(child.useCapability.calls.length).toEqual(1);
+                // this method needs to be tested asycnhronously
+                // expect(Object.keys(action.tree).length).toBe(2);
             });
 
             it("exports links to external objects as new objects", function () {

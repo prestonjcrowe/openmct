@@ -23,16 +23,10 @@
 
 define([
     "./src/actions/ExportAsJSONAction",
-    "./src/actions/ImportAsJSONAction",
-    "./src/directives/MCTFileInput",
-    "./src/services/FileInputService",
-    "text!./res/templates/controls/file-input.html"
+    "./src/actions/ImportAsJSONAction"
 ], function (
     ExportAsJSONAction,
-    ImportAsJSONAction,
-    MCTFileInput,
-    FileInputService,
-    fileInputTemplate
+    ImportAsJSONAction
 ) {
 
     return function ImportExportPlugin() {
@@ -71,29 +65,6 @@ define([
                                  "identifierService",
                                  "dialogService",
                                  "openmct"
-                            ]
-                        }
-                    ],
-                    "controls": [
-                        {
-                            "key": "file-input",
-                            "template": fileInputTemplate
-                        }
-                    ],
-                    "components": [
-                        {
-                            "provides": "fileInputService",
-                            "type": "provider",
-                            "implementation": FileInputService
-                        }
-
-                    ],
-                    "directives": [
-                        {
-                            "key": "mctFileInput",
-                            "implementation": MCTFileInput,
-                            "depends": [
-                                "fileInputService"
                             ]
                         }
                     ]

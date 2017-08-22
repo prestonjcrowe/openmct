@@ -21,7 +21,7 @@
  *****************************************************************************/
 
 define(
-    ["../../src/services/FileInputService"],
+    ["../src/FileInputService"],
     function (FileInputService) {
 
         describe("The FileInputService", function () {
