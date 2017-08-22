@@ -45,6 +45,11 @@ define(
                     ['allow']);
                 mockType =
                     jasmine.createSpyObj('type', ['hasFeature']);
+                mockType.hasFeature.andCallFake(function (feature) {
+                    return true;
+                });
+
+
                 context = {};
                 context.domainObject = domainObjectFactory(
                     {
@@ -52,6 +57,7 @@ define(
                         id: 'someID',
                         capabilities: {type: mockType}
                     });
+                policyService.allow.andReturn(true);
 
                 action = new ExportAsJSONAction(exportService, policyService,
                         identifierService, context);
@@ -62,7 +68,7 @@ define(
             });
 
             it("only applies to creatable objects", function () {
-                // appliesTo not defined here, need to test bundle separately?
+                // appliesTo not defined here, need to test bundle separately??
 
                 // expect(action.appliesTo(context)).toBe(true);
                 // mockType.hasFeature.andReturn(false);
@@ -78,7 +84,7 @@ define(
                     jasmine.createSpyObj('infiniteParentComposition', ['invoke']);
 
                 var infiniteChildComposition =
-                    jasmine.createSpyObj('infiniteParentComposition', ['invoke']);
+                    jasmine.createSpyObj('infiniteChildComposition', ['invoke']);
 
                 var parent = domainObjectFactory({
                     name: 'parent',
@@ -97,16 +103,15 @@ define(
                     }
                 });
 
+
                 infiniteParentComposition.invoke.andReturn(Promise.resolve([child]));
                 infiniteChildComposition.invoke.andReturn(Promise.resolve([parent]));
                 context.domainObject = parent;
+                action.perform();
 
-                //expect(action.isCreatable(child)).toBe(true);
-                //console.log(JSON.stringify(action.perform()));
+                //expect(policyService.allow).toHaveBeenCalled();
                 //expect(parent.useCapability.calls.length).toEqual(1);
                 //expect(child.useCapability.calls.length).toEqual(1);
-
-                //isCreatable(child) returns false... need to mock type capability here
             });
 
             it("exports links to external objects as new objects", function () {

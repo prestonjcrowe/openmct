@@ -49,10 +49,10 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.perform = function () {
         this.dialogService.getUserInput(this.getFormModel(), {})
-            .then(function (state) {
-                if (this.validateJSON(state.selectFile.body)) {
-                    var importedTree = JSON.parse(state.selectFile.body);
-                    this.importObjectTree(importedTree.openmct);
+            .then(function (form) {
+                if (this.validateJSON(form.selectFile.body)) {
+                    var importedTree = JSON.parse(form.selectFile.body);
+                    this.importObjectTree(importedTree);
                 } else {
                     this.displayError();
                 }
@@ -61,18 +61,15 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.importObjectTree = function (file) {
         var parent = this.context.domainObject;
-
         var tree = this.generateNewIdentifiers(file);
 
-        // Instantiate root object w/ its new id
-        var rootId = Object.keys(tree.root)[0];
-        var rootObj = this.instantiate(tree.root[rootId], rootId);
-        rootObj.getCapability("location").setPrimaryLocation(parent.getId());
-        tree = this.unwrapRoot(tree, rootId);
+        var rootId = tree.rootId;
+        var rootObj = this.instantiate(tree.openmct[rootId], rootId);
 
         // Instantiate all objects in tree with their newly genereated ids,
         // adding each to its rightful parent's composition
-        this.deepInstantiate(rootObj, tree, []);
+        rootObj.getCapability("location").setPrimaryLocation(parent.getId());
+        this.deepInstantiate(rootObj, tree.openmct, []);
         parent.getCapability("composition").add(rootObj);
     };
 
@@ -82,6 +79,7 @@ define(['zepto'], function ($) {
         if (parent.hasCapability("composition")) {
             var parentModel = parent.getModel();
             var newObj;
+
             seen.push(parent.getId());
             parentModel.composition.forEach(function (childId, index) {
                 if (!tree[childId] || seen.includes(childId)) {
@@ -100,20 +98,10 @@ define(['zepto'], function ($) {
 
     ImportAsJSONAction.prototype.generateNewIdentifiers = function (tree) {
         // For each domain object in the file, generate new ID, replace in tree
-        Object.keys(tree).forEach(function (domainObjectId) {
-            if (domainObjectId === "root") {
-                domainObjectId = Object.keys(tree.root)[0];
-            }
+        Object.keys(tree.openmct).forEach(function (domainObjectId) {
             var newId = this.identifierService.generate();
             tree = this.rewriteId(domainObjectId, newId, tree);
         }, this);
-        return tree;
-    };
-
-    ImportAsJSONAction.prototype.unwrapRoot = function (tree, rootId) {
-        var rootModel = tree.root[rootId];
-        tree[rootId] = rootModel;
-        delete tree.root;
         return tree;
     };
 
@@ -155,7 +143,7 @@ define(['zepto'], function ($) {
         } catch (e) {
             return false;
         }
-        if (!json.openmct || Object.keys(json).length !== 1) {
+        if (!json.openmct || !json.rootId) {
             return false;
         }
         return true;

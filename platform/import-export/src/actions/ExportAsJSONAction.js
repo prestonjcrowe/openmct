@@ -38,6 +38,7 @@ define([], function () {
     ) {
 
         this.root = {};
+        this.tree = {};
         this.calls = 0;
         this.context = context;
         this.externalIdentifiers = [];
@@ -51,29 +52,27 @@ define([], function () {
     };
 
     ExportAsJSONAction.prototype.contructJSON = function (rootObject) {
-        var tree = {};
-        tree[rootObject.getId()] = rootObject.getModel();
         this.root = rootObject;
-        // Root is included in tree during building to form relationships,
-        // removed after tree is built and re-added with "root" wrapper
+        this.tree[rootObject.getId()] = rootObject.getModel();
 
-        this.write(tree, rootObject, [], function (result) {
-            this.exportService.exportJSON(result,
-                {filename: rootObject.getModel().name + '.json'});
-        }.bind(this));
+        this.saveAs = function (completedTree) {
+            this.exportService.exportJSON(
+                completedTree,
+                {filename: rootObject.getModel().name + '.json'}
+            );
+        };
+
+        this.write(rootObject);
     };
 
     /**
-     * Traverses the object hierarchy and populates the tree object with models
-     * and identifiers.
+     * Traverses object hierarchy and populates tree object with models and
+     * identifiers.
      *
      * @private
-     * @param {Object} tree
      * @param {Object} parent
-     * @param {string []} seen
-     * @param callback
      */
-    ExportAsJSONAction.prototype.write = function (tree, parent, seen, callback) {
+    ExportAsJSONAction.prototype.write = function (parent) {
 
         this.calls++;
         if (parent.hasCapability('composition')) {
@@ -82,30 +81,28 @@ define([], function () {
                     children.forEach(function (child, index) {
                         // Only export if object is creatable
                         if (this.isCreatable(child)) {
-                            // If object is a link to something absent from
-                            // tree, generate new id and treat as new object
-                            if (this.isExternal(child, parent, tree)) {
-                                this.rewriteLink(child, parent, tree);
-                            } else {
-                                tree[child.getId()] = child.getModel();
-                            }
-                            // Prevents infinite export of objects that contain
-                            // themselves
-                            seen.push(parent.getId());
-                            if (!seen.includes(child.getId())) {
-                                this.write(tree, child, seen, callback);
+                            // Prevents infinite export of self-contained objs
+                            if (!this.tree.hasOwnProperty(child.getId())) {
+                                // If object is a link to something absent from
+                                // tree, generate new id and treat as new object
+                                if (this.isExternal(child, parent, this.tree)) {
+                                    this.rewriteLink(child, parent, this.tree);
+                                } else {
+                                    this.tree[child.getId()] = child.getModel();
+                                }
+                                this.write(child);
                             }
                         }
                     }.bind(this));
                     this.calls--;
                     if (this.calls === 0) {
-                        callback(this.wrap(tree));
+                        this.saveAs(this.wrap(this.tree));
                     }
                 }.bind(this));
         } else {
             this.calls--;
             if (this.calls === 0) {
-                callback(this.wrap(tree));
+                this.saveAs(this.wrap(this.tree));
             }
         }
     };
@@ -153,14 +150,9 @@ define([], function () {
      * @private
      */
     ExportAsJSONAction.prototype.wrap = function (tree) {
-        // Important to use current "tree" state of root
-        // object because its composition may have been altered
-        var rootEntry = {};
-        rootEntry[this.root.getId()] = tree[this.root.getId()];
-        tree.root = rootEntry;
-        delete tree[this.root.getId()];
         return {
-            "openmct": tree
+            "openmct": tree,
+            "rootId": this.root.getId()
         };
     };
 
@@ -169,7 +161,6 @@ define([], function () {
             "creation",
             domainObject.getCapability("type")
         );
-
     };
 
     return ExportAsJSONAction;
