@@ -40,14 +40,29 @@ define(
                 );
 
                 mctFileInput = new MCTFileInput(mockFileInputService);
-            });
-
-            it("watches for file input and validates form", function () {
-
+                var attrs = [];
+                var control = jasmine.createSpyObj('control', ['$setValidity']);
+                var element = jasmine.createSpyObj('element', ['on']);
+                mctFileInput.link(mockScope, element, attrs, control);
             });
 
             it("is restricted to attributes", function () {
                 expect(mctFileInput.restrict).toEqual("A");
+            });
+
+            it("changes button text to match file name", function () {
+                // trigger getInput.andReturn({name: something, body: somethingElse})
+                // check that button text = something
+            });
+
+            it("watches for file input and validates form", function () {
+                expect(mockScope.$watch).toHaveBeenCalledWith(
+                    "validInput",
+                    jasmine.any(Function)
+                );
+                // expect form to be dirty
+                // control.$setValidity(true) or whatevs
+                // expect form to be valid
             });
         });
     }
