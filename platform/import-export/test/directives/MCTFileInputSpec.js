@@ -28,7 +28,8 @@ define(
 
             var mockScope,
                 mockFileInputService,
-                mctFileInput;
+                mctFileInput,
+                element;
 
             beforeEach(function () {
                 mockFileInputService = jasmine.createSpyObj('fileInputService',
@@ -42,7 +43,7 @@ define(
                 mctFileInput = new MCTFileInput(mockFileInputService);
                 var attrs = [];
                 var control = jasmine.createSpyObj('control', ['$setValidity']);
-                var element = jasmine.createSpyObj('element', ['on']);
+                element = jasmine.createSpyObj('element', ['on', 'trigger']);
                 mctFileInput.link(mockScope, element, attrs, control);
             });
 
@@ -51,6 +52,12 @@ define(
             });
 
             it("changes button text to match file name", function () {
+                expect(element.on).toHaveBeenCalledWith(
+                    'click',
+                    jasmine.any(Function)
+                );
+                mockFileInputService.getInput.andReturn({name: "file-name", body: "file-body"});
+
                 // trigger getInput.andReturn({name: something, body: somethingElse})
                 // check that button text = something
             });

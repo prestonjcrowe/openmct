@@ -25,20 +25,49 @@ define(
     function (FileInputService) {
 
         describe("The FileInputService", function () {
+            var fileInputService,
+                mockInput;
 
             beforeEach(function () {
-
-                var fileInputService;
-
                 fileInputService = new FileInputService();
+                mockInput = jasmine.createSpyObj('input',
+                    [
+                        'on',
+                        'trigger',
+                        'remove'
+                    ]
+                );
+                mockInput.on.andCallFake(function (event, changeHandler) {
+                    changeHandler.apply(mockInput);
+                });
+                spyOn(fileInputService, "newInput").andReturn(
+                    mockInput
+                );
+
             });
 
             it("can read a file", function () {
+                mockInput.files = [new File(["file content"], "file name")];
+                fileInputService.getInput().then(function (result) {
+                    expect(result.name).toBe("file name");
+                    expect(result.body).toBe("file content");
+                });
 
+                expect(mockInput.trigger).toHaveBeenCalledWith('click');
+                expect(mockInput.remove).toHaveBeenCalled();
             });
 
             it("catches file read errors", function () {
+                mockInput.files = ["GARBAGE"];
+                fileInputService.getInput().then(
+                    function (result) {},
+                    function (err) {
+                        expect(err).toBe("File read error");
+                    }
+                );
 
+                expect(mockInput.trigger).toHaveBeenCalledWith('click');
+                expect(mockInput.remove).toHaveBeenCalled();
             });
         });
     }

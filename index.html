@@ -30,10 +30,7 @@
     <script>
         var THIRTY_MINUTES = 30 * 60 * 1000;
 
-        require([
-            'openmct',
-            'platform/import-export/bundle'
-        ], function (openmct, ImportExportPlugin) {
+        require(['openmct'], function (openmct) {
             [
                 'example/eventGenerator',
                 'example/styleguide'
@@ -46,7 +43,7 @@
             openmct.install(openmct.plugins.Generator());
             openmct.install(openmct.plugins.ExampleImagery());
             openmct.install(openmct.plugins.UTCTimeSystem());
-            openmct.install(ImportExportPlugin());
+            openmct.install(openmct.plugins.ImportExport());
             openmct.install(openmct.plugins.Conductor({
                 menuOptions: [
                     {

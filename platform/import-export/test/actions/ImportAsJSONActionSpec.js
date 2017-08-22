@@ -87,7 +87,8 @@ define(
                 context.domainObject = compDomainObject;
                 expect(ImportAsJSONAction.appliesTo(context)).toBe(true);
                 context.domainObject = noCompDomainObject;
-                expect(ImportAsJSONAction.appliesTo(noCompDomainObject)).toBe(false);
+                expect(ImportAsJSONAction.appliesTo(noCompDomainObject))
+                    .toBe(false);
             });
 
             it("displays error dialog on invalid file choice", function () {
@@ -95,6 +96,8 @@ define(
                 expect(dialogService.getUserInput).toHaveBeenCalled();
                 // expect(dialogService.showBlockingMessage).toHaveBeenCalled();
                 // seems that getUserInput.then()... doesn't execute entirely?
+                // something's undefined here causing test to stop early, will
+                // investigate
             });
 
             it("can import self-containing objects", function () {
