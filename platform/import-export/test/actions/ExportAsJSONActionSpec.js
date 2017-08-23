@@ -45,10 +45,10 @@ define(
                     ['allow']);
                 mockType =
                     jasmine.createSpyObj('type', ['hasFeature']);
-                mockType.hasFeature.andCallFake(function (feature) {
-                    return true;
-                });
 
+                mockType.hasFeature.andCallFake(function (feature) {
+                    return feature === 'creation';
+                });
 
                 context = {};
                 context.domainObject = domainObjectFactory(
@@ -59,7 +59,7 @@ define(
                     });
 
                 policyService.allow.andCallFake(function (capability, type) {
-                    return true;
+                    return type.hasFeature(capability);
                 });
 
                 action = new ExportAsJSONAction(exportService, policyService,
@@ -77,30 +77,85 @@ define(
                 // expect(action.appliesTo(context)).toBe(false);
             });
 
-            it("doesn't export non-editable objects in tree", function () {
+            it("doesn't export non-creatable objects in tree", function () {
+                var nonCreatableType = {
+                    hasFeature :
+                        function (feature) {
+                            return feature !== 'creation';
+                        }
+                };
 
-            });
-
-            it("can export self-containing objects", function () {
-                var infiniteParentComposition =
-                    jasmine.createSpyObj('infiniteParentComposition', ['invoke']);
-
-                var infiniteChildComposition =
-                    jasmine.createSpyObj('infiniteChildComposition', ['invoke']);
+                var parentComposition =
+                    jasmine.createSpyObj('parentComposition', ['invoke']);
 
                 var parent = domainObjectFactory({
                     name: 'parent',
                     model: { name: 'parent', location: 'ROOT'},
-                    id: 'infiniteParent',
+                    id: 'parentId',
+                    capabilities: {
+                        composition: parentComposition,
+                        type: mockType
+                    }
+                });
+
+                var child = domainObjectFactory({
+                    name: 'child',
+                    model: { name: 'child', location: 'parentId' },
+                    id: 'childId',
+                    capabilities: {
+                        type: nonCreatableType
+                    }
+                });
+
+                parentComposition.invoke.andReturn(
+                    Promise.resolve([child])
+                );
+                context.domainObject = parent;
+
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Exported tree sohuld have been built");
+
+                runs(function () {
+                    expect(Object.keys(action.tree).length).toBe(1);
+                    expect(action.tree.hasOwnProperty("parentId"))
+                        .toBeTruthy();
+                });
+            });
+
+            it("can export self-containing objects", function () {
+                var infiniteParentComposition =
+                    jasmine.createSpyObj('infiniteParentComposition',
+                        ['invoke']
+                    );
+
+                var infiniteChildComposition =
+                    jasmine.createSpyObj('infiniteChildComposition',
+                        ['invoke']
+                    );
+
+                var parent = domainObjectFactory({
+                    name: 'parent',
+                    model: { name: 'parent', location: 'ROOT'},
+                    id: 'infiniteParentId',
                     capabilities: {
                         composition: infiniteParentComposition,
                         type: mockType
                     }
                 });
+
                 var child = domainObjectFactory({
                     name: 'child',
-                    model: { name: 'child', location: 'infiniteParent' },
-                    id: 'infiniteChild',
+                    model: { name: 'child', location: 'infiniteParentId' },
+                    id: 'infiniteChildId',
                     capabilities: {
                         composition: infiniteChildComposition,
                         type: mockType
@@ -114,17 +169,37 @@ define(
                     Promise.resolve([parent])
                 );
                 context.domainObject = parent;
-                action.perform();
 
-                // this method needs to be tested asycnhronously
-                // expect(Object.keys(action.tree).length).toBe(2);
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Exported tree sohuld have been built");
+
+                runs(function () {
+                    expect(Object.keys(action.tree).length).toBe(2);
+                    expect(action.tree.hasOwnProperty("infiniteParentId"))
+                        .toBeTruthy();
+                    expect(action.tree.hasOwnProperty("infiniteChildId"))
+                        .toBeTruthy();
+                });
             });
 
             it("exports links to external objects as new objects", function () {
 
             });
 
-
+            it("exports object tree in the correct format", function () {
+                // action.tree is the unwrapped version, need to spyOn saveAs
+                // check that tree has rootId key and openmct key...
+                // expect(Object.keys(EXPORTEDTREE).length).toBe(2);
+            });
         });
     }
 );

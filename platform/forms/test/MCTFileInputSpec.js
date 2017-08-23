@@ -86,8 +86,12 @@ define(
 
             it("validates control on file selection", function () {
                 expect(control.$setValidity.callCount).toBe(2);
-                expect(control.$setValidity.argsForCall[0]).toEqual(['file-input', false]);
-                expect(control.$setValidity.argsForCall[1]).toEqual(['file-input', true]);
+                expect(control.$setValidity.argsForCall[0]).toEqual(
+                    ['file-input', false]
+                );
+                expect(control.$setValidity.argsForCall[1]).toEqual(
+                    ['file-input', true]
+                );
             });
         });
     }
