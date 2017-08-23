@@ -25,8 +25,7 @@ define(
     function ($) {
 
         /**
-         * The mct-file-input utilizes the FileInputService to provide behavior
-         * for the file input form control.
+         * The mct-file-input handles behavior of the file input form control.
          * @constructor
          * @memberof platform/forms
          */
@@ -44,18 +43,15 @@ define(
                     fileInputService.getInput().then(function (result) {
                         setText(result.name);
                         scope.ngModel[scope.field] = result;
-                        scope.validInput = true;
+                        control.$setValidity("file-input", true);
                     }, function () {
                         setText('Select File');
-                        scope.validInput = false;
+                        control.$setValidity("file-input", false);
                     });
                 }
 
                 control.$setValidity("file-input", false);
                 element.on('click', handleClick);
-                scope.$watch('validInput', function (newValue, oldValue) {
-                    control.$setValidity("file-input", newValue);
-                });
             }
 
             return {
