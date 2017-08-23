@@ -29,9 +29,14 @@ define(
             var mockScope,
                 mockFileInputService,
                 mctFileInput,
-                element;
+                element,
+                attrs,
+                control;
 
             beforeEach(function () {
+                attrs = [];
+                control = jasmine.createSpyObj('control', ['$setValidity']);
+                element = jasmine.createSpyObj('element', ['on', 'trigger']);
                 mockFileInputService = jasmine.createSpyObj('fileInputService',
                     ['getInput']
                 );
@@ -40,11 +45,31 @@ define(
                         ['$watch']
                 );
 
+                mockScope.structure = {text: 'Select File'};
+                mockScope.field = "file-input";
+                mockScope.ngModel = {"file-input" : undefined};
+
+                element.on.andCallFake(function (event, clickHandler) {
+                    clickHandler();
+                });
+                mockFileInputService.getInput.andReturn(
+                    Promise.resolve({name: "file-name", body: "file-body"})
+                );
+
                 mctFileInput = new MCTFileInput(mockFileInputService);
-                var attrs = [];
-                var control = jasmine.createSpyObj('control', ['$setValidity']);
-                element = jasmine.createSpyObj('element', ['on', 'trigger']);
-                mctFileInput.link(mockScope, element, attrs, control);
+
+                // Need to wait for mock promise
+                var init = false;
+                runs(function () {
+                    mctFileInput.link(mockScope, element, attrs, control);
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "File selection should have beeen simulated");
             });
 
             it("is restricted to attributes", function () {
@@ -56,20 +81,13 @@ define(
                     'click',
                     jasmine.any(Function)
                 );
-                mockFileInputService.getInput.andReturn({name: "file-name", body: "file-body"});
-
-                // trigger getInput.andReturn({name: something, body: somethingElse})
-                // check that button text = something
+                expect(mockScope.structure.text).toEqual("file-name");
             });
 
-            it("watches for file input and validates form", function () {
-                expect(mockScope.$watch).toHaveBeenCalledWith(
-                    "validInput",
-                    jasmine.any(Function)
-                );
-                // expect form to be dirty
-                // control.$setValidity(true) or whatevs
-                // expect form to be valid
+            it("validates control on file selection", function () {
+                expect(control.$setValidity.callCount).toBe(2);
+                expect(control.$setValidity.argsForCall[0]).toEqual(['file-input', false]);
+                expect(control.$setValidity.argsForCall[1]).toEqual(['file-input', true]);
             });
         });
     }
