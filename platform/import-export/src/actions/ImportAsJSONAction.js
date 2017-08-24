@@ -50,19 +50,18 @@ define(['zepto'], function ($) {
     ImportAsJSONAction.prototype.perform = function () {
         this.dialogService.getUserInput(this.getFormModel(), {})
             .then(function (form) {
-                if (this.validateJSON(form.selectFile.body)) {
-                    var importedTree = JSON.parse(form.selectFile.body);
-                    this.importObjectTree(importedTree);
+                var objectTree = form.selectFile.body;
+                if (this.validateJSON(objectTree)) {
+                    this.importObjectTree(JSON.parse(objectTree));
                 } else {
                     this.displayError();
                 }
             }.bind(this));
     };
 
-    ImportAsJSONAction.prototype.importObjectTree = function (file) {
+    ImportAsJSONAction.prototype.importObjectTree = function (objTree) {
         var parent = this.context.domainObject;
-        var tree = this.generateNewIdentifiers(file);
-
+        var tree = this.generateNewIdentifiers(objTree);
         var rootId = tree.rootId;
         var rootObj = this.instantiate(tree.openmct[rootId], rootId);
 
@@ -88,7 +87,6 @@ define(['zepto'], function ($) {
 
                 newObj = this.instantiate(tree[childId], childId);
                 parent.getCapability("composition").add(newObj);
-
                 newObj.getCapability("location")
                     .setPrimaryLocation(tree[childId].location);
                 this.deepInstantiate(newObj, tree, seen);

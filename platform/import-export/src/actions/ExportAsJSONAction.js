@@ -85,8 +85,8 @@ define([], function () {
                             if (!this.tree.hasOwnProperty(child.getId())) {
                                 // If object is a link to something absent from
                                 // tree, generate new id and treat as new object
-                                if (this.isExternal(child, parent, this.tree)) {
-                                    this.rewriteLink(child, parent, this.tree);
+                                if (this.isExternal(child, parent)) {
+                                    this.rewriteLink(child, parent);
                                 } else {
                                     this.tree[child.getId()] = child.getModel();
                                 }
@@ -96,13 +96,13 @@ define([], function () {
                     }.bind(this));
                     this.calls--;
                     if (this.calls === 0) {
-                        this.saveAs(this.wrap(this.tree));
+                        this.saveAs(this.wrapTree());
                     }
                 }.bind(this));
         } else {
             this.calls--;
             if (this.calls === 0) {
-                this.saveAs(this.wrap(this.tree));
+                this.saveAs(this.wrapTree());
             }
         }
     };
@@ -113,7 +113,7 @@ define([], function () {
      *
      * @private
      */
-    ExportAsJSONAction.prototype.rewriteLink = function (child, parent, tree) {
+    ExportAsJSONAction.prototype.rewriteLink = function (child, parent) {
         this.externalIdentifiers.push(child.getId());
         var parentModel = parent.getModel();
         var childModel = child.getModel();
@@ -122,9 +122,9 @@ define([], function () {
         var newId = this.identifierService.generate();
 
         newModel.location = parent.getId();
-        tree[newId] = newModel;
-        tree[parent.getId()] = this.copyModel(parentModel);
-        tree[parent.getId()].composition[index] = newId;
+        this.tree[newId] = newModel;
+        this.tree[parent.getId()] = this.copyModel(parentModel);
+        this.tree[parent.getId()].composition[index] = newId;
     };
 
     ExportAsJSONAction.prototype.copyModel = function (model) {
@@ -132,9 +132,9 @@ define([], function () {
         return JSON.parse(jsonString);
     };
 
-    ExportAsJSONAction.prototype.isExternal = function (child, parent, tree) {
+    ExportAsJSONAction.prototype.isExternal = function (child, parent) {
         if (child.getModel().location !== parent.getId() &&
-            !Object.keys(tree).includes(child.getModel().location) &&
+            !Object.keys(this.tree).includes(child.getModel().location) &&
             child.getId() !== this.root.getId() ||
             this.externalIdentifiers.includes(child.getId())) {
 
@@ -149,9 +149,9 @@ define([], function () {
      *
      * @private
      */
-    ExportAsJSONAction.prototype.wrap = function (tree) {
+    ExportAsJSONAction.prototype.wrapTree = function () {
         return {
-            "openmct": tree,
+            "openmct": this.tree,
             "rootId": this.root.getId()
         };
     };
