@@ -58,6 +58,8 @@ define(
                         capabilities: {type: mockType}
                     });
 
+                identifierService.generate.andReturn('brandNewId');
+
                 policyService.allow.andCallFake(function (capability, type) {
                     return type.hasFeature(capability);
                 });
@@ -192,7 +194,58 @@ define(
             });
 
             it("exports links to external objects as new objects", function () {
+                var externallyLinkedComposition =
+                    jasmine.createSpyObj('externallyLinkedComposition',
+                        ['invoke']
+                    );
 
+                var parent = domainObjectFactory({
+                    name: 'parent',
+                    model: {
+                        name: 'parent',
+                        composition: ['externalId'],
+                        location: 'ROOT'},
+                    id: 'parentId',
+                    capabilities: {
+                        composition: externallyLinkedComposition,
+                        type: mockType
+                    }
+                });
+
+                var externalObject = domainObjectFactory({
+                    name: 'external',
+                    model: { name: 'external', location: 'outsideOfTree'},
+                    id: 'externalId',
+                    capabilities: {
+                        type: mockType
+                    }
+                });
+
+                externallyLinkedComposition.invoke.andReturn(
+                    Promise.resolve([externalObject])
+                );
+                context.domainObject = parent;
+
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Exported tree sohuld have been built");
+
+                runs(function () {
+                    expect(Object.keys(action.tree).length).toBe(2);
+                    expect(action.tree.hasOwnProperty('parentId'))
+                        .toBeTruthy();
+                    expect(action.tree.hasOwnProperty('brandNewId'))
+                        .toBeTruthy();
+                    expect(action.tree.brandNewId.location).toBe('parentId');
+                });
             });
 
             it("exports object tree in the correct format", function () {

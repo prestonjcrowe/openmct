@@ -37,14 +37,43 @@ define(
                 dialogService,
                 openmct,
                 mockDialog,
-                compositionCapability;
+                compositionCapability,
+                mockInstantiate,
+                uniqueId;
 
 
             beforeEach(function () {
 
+                uniqueId = 0;
                 openmct = {
                     $injector: jasmine.createSpyObj('$injector', ['get'])
                 };
+                mockInstantiate = jasmine.createSpy('instantiate').andCallFake(
+                    function (model, id) {
+                        var config = {
+                            "model": model,
+                            "id": id,
+                            "capabilities": {}
+                        };
+                        var locationCapability = {
+                            setPrimaryLocation: jasmine.createSpy
+                                ('setPrimaryLocation').andCallFake(function (newLocation) {
+                                    config.model.location = newLocation;
+                                })
+                        };
+                        config.capabilities.location = locationCapability;
+                        if (model.composition) {
+                            var compCapability = jasmine.createSpy('compCapability')
+                                .andReturn(model.composition);
+                            compCapability.add = jasmine.createSpy('add')
+                                .andCallFake(function (newObj) {
+                                    config.model.composition. push(newObj.getId());
+                                });
+                            config.capabilities.composition = compCapability;
+                        }
+                        return domainObjectFactory(config);
+                    });
+                openmct.$injector.get.andReturn(mockInstantiate);
                 dialogService = jasmine.createSpyObj('dialogService',
                     [
                         'getUserInput',
@@ -56,20 +85,36 @@ define(
                         'generate'
                     ]
                 );
+                identifierService.generate.andCallFake(function () {
+                    uniqueId++;
+                    return uniqueId;
+                });
                 compositionCapability = jasmine.createSpy('compositionCapability');
                 mockDialog = jasmine.createSpyObj("dialog", ["dismiss"]);
                 dialogService.showBlockingMessage.andReturn(mockDialog);
                 dialogService.getUserInput.andReturn(Promise.resolve(
                     {
-                        openmct: {
-                            "someId": {"name": "someObj"}
+                        selectFile: {
+                            body: JSON.stringify({
+                                "openmct": {
+                                    "cce9f107-5060-4f55-8151-a00120f4222f": {
+                                        "composition": [],
+                                        "name": "test",
+                                        "type": "folder",
+                                        "modified": 1503596596639,
+                                        "location": "mine",
+                                        "persisted": 1503596596639
+                                    }
+                                },
+                                "rootId": "cce9f107-5060-4f55-8151-a00120f4222f"
+                            }),
+                            name: "fileName"
                         }
                     })
                 );
 
                 action = new ImportAsJSONAction(exportService, identifierService,
                     dialogService, openmct, context);
-
             });
 
             it("initializes happily", function () {
@@ -92,19 +137,78 @@ define(
             });
 
             it("displays error dialog on invalid file choice", function () {
-                action.perform();
-                expect(dialogService.getUserInput).toHaveBeenCalled();
-                // expect(dialogService.showBlockingMessage).toHaveBeenCalled();
-                // seems that getUserInput.then()... doesn't execute entirely?
-                // something's undefined here causing test to stop early, will
-                // investigate
-                // DEFINITELY has to do with mock object declarations, missing
-                // location etc. will revisit
+                dialogService.getUserInput.andReturn(Promise.resolve(
+                    {
+                        selectFile: {
+                            body: JSON.stringify({badKey: "INVALID"}),
+                            name: "fileName"
+                        }
+                    })
+                );
+
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Promise containing file data should have resolved");
+
+                runs(function () {
+                    expect(dialogService.getUserInput).toHaveBeenCalled();
+                    expect(dialogService.showBlockingMessage).toHaveBeenCalled();
+                });
             });
 
             it("can import self-containing objects", function () {
-                // getUserInput.andReturn({"imported-file": jsonToTest })...
-                // use previously exported JSON to test
+                dialogService.getUserInput.andReturn(Promise.resolve(
+                    {
+                        selectFile: {
+                            body: JSON.stringify({
+                                "openmct": {
+                                    "infiniteParent": {
+                                        "composition": ["infinteChild"],
+                                        "name": "1",
+                                        "type": "folder",
+                                        "modified": 1503598129176,
+                                        "location": "mine",
+                                        "persisted": 1503598129176
+                                    },
+                                    "infinteChild": {
+                                        "composition": ["infiniteParent"],
+                                        "name": "2",
+                                        "type": "folder",
+                                        "modified": 1503598132428,
+                                        "location": "infiniteParent",
+                                        "persisted": 1503598132428
+                                    }
+                                },
+                                "rootId": "infiniteParent"
+                            }),
+                            name: "fileName"
+                        }
+                    })
+                );
+
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Promise containing file data should have resolved");
+
+                runs(function () {
+                    expect(mockInstantiate.calls.length).toEqual(2);
+                });
             });
 
             it("assigns new ids to each imported object", function () {
