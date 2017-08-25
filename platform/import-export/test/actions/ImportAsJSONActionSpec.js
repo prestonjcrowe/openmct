@@ -23,10 +23,9 @@
 define(
     [
         "../../src/actions/ImportAsJSONAction",
-        "../../../entanglement/test/DomainObjectFactory",
-        "zepto"
+        "../../../entanglement/test/DomainObjectFactory"
     ],
-    function (ImportAsJSONAction, domainObjectFactory, $) {
+    function (ImportAsJSONAction, domainObjectFactory) {
 
         describe("The import JSON action", function () {
 
@@ -39,12 +38,14 @@ define(
                 mockDialog,
                 compositionCapability,
                 mockInstantiate,
-                uniqueId;
+                uniqueId,
+                newObjects;
 
 
             beforeEach(function () {
 
                 uniqueId = 0;
+                newObjects = [];
                 openmct = {
                     $injector: jasmine.createSpyObj('$injector', ['get'])
                 };
@@ -57,20 +58,24 @@ define(
                         };
                         var locationCapability = {
                             setPrimaryLocation: jasmine.createSpy
-                                ('setPrimaryLocation').andCallFake(function (newLocation) {
-                                    config.model.location = newLocation;
-                                })
+                                ('setPrimaryLocation').andCallFake(
+                                    function (newLocation) {
+                                        config.model.location = newLocation;
+                                    }
+                                )
                         };
                         config.capabilities.location = locationCapability;
                         if (model.composition) {
-                            var compCapability = jasmine.createSpy('compCapability')
+                            var compCapability =
+                                jasmine.createSpy('compCapability')
                                 .andReturn(model.composition);
                             compCapability.add = jasmine.createSpy('add')
                                 .andCallFake(function (newObj) {
-                                    config.model.composition. push(newObj.getId());
+                                    config.model.composition.push(newObj.getId());
                                 });
                             config.capabilities.composition = compCapability;
                         }
+                        newObjects.push(domainObjectFactory(config));
                         return domainObjectFactory(config);
                     });
                 openmct.$injector.get.andReturn(mockInstantiate);
@@ -92,26 +97,6 @@ define(
                 compositionCapability = jasmine.createSpy('compositionCapability');
                 mockDialog = jasmine.createSpyObj("dialog", ["dismiss"]);
                 dialogService.showBlockingMessage.andReturn(mockDialog);
-                dialogService.getUserInput.andReturn(Promise.resolve(
-                    {
-                        selectFile: {
-                            body: JSON.stringify({
-                                "openmct": {
-                                    "cce9f107-5060-4f55-8151-a00120f4222f": {
-                                        "composition": [],
-                                        "name": "test",
-                                        "type": "folder",
-                                        "modified": 1503596596639,
-                                        "location": "mine",
-                                        "persisted": 1503596596639
-                                    }
-                                },
-                                "rootId": "cce9f107-5060-4f55-8151-a00120f4222f"
-                            }),
-                            name: "fileName"
-                        }
-                    })
-                );
 
                 action = new ImportAsJSONAction(exportService, identifierService,
                     dialogService, openmct, context);
@@ -132,8 +117,7 @@ define(
                 context.domainObject = compDomainObject;
                 expect(ImportAsJSONAction.appliesTo(context)).toBe(true);
                 context.domainObject = noCompDomainObject;
-                expect(ImportAsJSONAction.appliesTo(noCompDomainObject))
-                    .toBe(false);
+                expect(ImportAsJSONAction.appliesTo(context)).toBe(false);
             });
 
             it("displays error dialog on invalid file choice", function () {
@@ -212,7 +196,43 @@ define(
             });
 
             it("assigns new ids to each imported object", function () {
+                dialogService.getUserInput.andReturn(Promise.resolve(
+                    {
+                        selectFile: {
+                            body: JSON.stringify({
+                                "openmct": {
+                                    "cce9f107-5060-4f55-8151-a00120f4222f": {
+                                        "composition": [],
+                                        "name": "test",
+                                        "type": "folder",
+                                        "modified": 1503596596639,
+                                        "location": "mine",
+                                        "persisted": 1503596596639
+                                    }
+                                },
+                                "rootId": "cce9f107-5060-4f55-8151-a00120f4222f"
+                            }),
+                            name: "fileName"
+                        }
+                    })
+                );
 
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Promise containing file data should have resolved");
+
+                runs(function () {
+                    expect(mockInstantiate.calls.length).toEqual(1);
+                    expect(newObjects[0].getId()).toBe('1');
+                });
             });
 
         });

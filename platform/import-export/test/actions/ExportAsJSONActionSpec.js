@@ -34,7 +34,8 @@ define(
                 exportService,
                 identifierService,
                 policyService,
-                mockType;
+                mockType,
+                exportedTree;
 
             beforeEach(function () {
                 exportService = jasmine.createSpyObj('exportService',
@@ -49,7 +50,6 @@ define(
                 mockType.hasFeature.andCallFake(function (feature) {
                     return feature === 'creation';
                 });
-
                 context = {};
                 context.domainObject = domainObjectFactory(
                     {
@@ -57,9 +57,10 @@ define(
                         id: 'someID',
                         capabilities: {type: mockType}
                     });
-
                 identifierService.generate.andReturn('brandNewId');
-
+                exportService.exportJSON.andCallFake(function (tree, options) {
+                    exportedTree = tree;
+                });
                 policyService.allow.andCallFake(function (capability, type) {
                     return type.hasFeature(capability);
                 });
@@ -70,13 +71,6 @@ define(
 
             it("initializes happily", function () {
                 expect(action).toBeDefined();
-            });
-
-            it("only applies to creatable objects", function () {
-                // need to test bundle separately, add spec for bundle.js
-                // expect(action.appliesTo(context)).toBe(true);
-                // mockType.hasFeature.andReturn(false);
-                // expect(action.appliesTo(context)).toBe(false);
             });
 
             it("doesn't export non-creatable objects in tree", function () {
@@ -249,9 +243,23 @@ define(
             });
 
             it("exports object tree in the correct format", function () {
-                // action.tree is the unwrapped version, need to spyOn saveAs
-                // check that tree has rootId key and openmct key...
-                // expect(Object.keys(EXPORTEDTREE).length).toBe(2);
+                var init = false;
+                runs(function () {
+                    action.perform();
+                    setTimeout(function () {
+                        init = true;
+                    }, 100);
+                });
+
+                waitsFor(function () {
+                    return init;
+                }, "Exported tree sohuld have been built");
+
+                runs(function () {
+                    expect(Object.keys(exportedTree).length).toBe(2);
+                    expect(exportedTree.hasOwnProperty('openmct')).toBeTruthy();
+                    expect(exportedTree.hasOwnProperty('rootId')).toBeTruthy();
+                });
             });
         });
     }
